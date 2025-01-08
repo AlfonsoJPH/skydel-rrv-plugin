@@ -1,2 +1,2 @@
 add_subdirectory(library)
-add_subdirectory(plugin)
+add_subdirectory(rrv_plugin)

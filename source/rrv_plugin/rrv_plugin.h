@@ -3,7 +3,7 @@
 #include "skydel_plug_ins/skydel_plugin.h"
 
 // Plugin implementation
-class Plugin : public QObject, public SkydelCoreInterface
+class Rrv_Plugin : public QObject, public SkydelCoreInterface
 {
   Q_OBJECT
 
@@ -17,4 +17,4 @@ public:
   inline void initialize() override {}
 };
 
-REGISTER_SKYDEL_PLUGIN(Plugin)
+REGISTER_SKYDEL_PLUGIN(Rrv_Plugin)

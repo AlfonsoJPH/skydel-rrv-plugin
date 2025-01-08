@@ -1,0 +1,5 @@
+{
+    "Name": "Rrv Plugin",
+    "Description": "This plugin aims to create a new receiver screen with data visualization that retrieves information external to Skydel. The data is processed and viewed in real time.",
+    "Version": "1.0"
+}
