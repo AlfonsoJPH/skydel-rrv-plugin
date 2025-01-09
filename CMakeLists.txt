@@ -17,7 +17,7 @@ else()
 endif()
 
 # Dependencies
-find_package(Qt5 COMPONENTS Core Widgets REQUIRED)
+find_package(Qt5 COMPONENTS Core Widgets SerialPort REQUIRED)
 
 # Skydel Plugins SDK
 add_library(SkydelPlugin INTERFACE)

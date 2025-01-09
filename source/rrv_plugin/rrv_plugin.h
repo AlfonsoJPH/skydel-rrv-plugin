@@ -1,6 +1,9 @@
 #pragma once
 
 #include "skydel_plug_ins/skydel_plugin.h"
+#include "../receiver_logic/serial_receiver.h"
+#include "rrv_viewer.h"
+#include <memory>
 
 // Plugin implementation
 class Rrv_Plugin : public QObject, public SkydelCoreInterface
@@ -13,8 +16,12 @@ public:
   inline void setNotifier(SkydelNotifierInterface*) override {}
   inline void setConfiguration(const QString&, const QJsonObject&) override {}
   inline QJsonObject getConfiguration() const override { return {}; }
-  inline SkydelWidgets createUI() override { return {}; }
-  inline void initialize() override {}
+  SkydelWidgets createUI() override;
+  void initialize() override;
+
+private:
+  rrv_viewer view;
+
 };
 
 REGISTER_SKYDEL_PLUGIN(Rrv_Plugin)

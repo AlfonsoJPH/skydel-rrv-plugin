@@ -1,2 +1,3 @@
 add_subdirectory(library)
 add_subdirectory(rrv_plugin)
+add_subdirectory(receiver_logic)
