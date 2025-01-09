@@ -12,7 +12,7 @@ class Rrv_Plugin : public QObject, public SkydelCoreInterface
 
 public:
   // SkydelCoreInterface
-  inline void setLogPath(const QString&) override {}
+  inline void setLogPath(const QString& path) override { logPath = path; }
   inline void setNotifier(SkydelNotifierInterface*) override {}
   inline void setConfiguration(const QString&, const QJsonObject&) override {}
   inline QJsonObject getConfiguration() const override { return {}; }
@@ -20,7 +20,8 @@ public:
   void initialize() override;
 
 private:
-  rrv_viewer view;
+  QString logPath;
+  std::unique_ptr<SerialReceiver> receiver;
 
 };
 

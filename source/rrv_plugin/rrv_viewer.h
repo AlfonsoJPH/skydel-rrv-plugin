@@ -2,7 +2,6 @@
 
 #include <QWidget>
 #include <QTextEdit>
-#include "../receiver_logic/serial_receiver.h"
 
 namespace Ui {
 class rrv_viewer;
@@ -19,7 +18,6 @@ public:
 
 private:
     Ui::rrv_viewer *ui;
-    std::unique_ptr<SerialReceiver> receiver;
 
 };
 
