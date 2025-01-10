@@ -21,7 +21,6 @@ signals:
 
 private:
     QSerialPort m_serialPort;
-    QByteArray m_readData;
     QString m_portName;
     int m_baudRate;
 };

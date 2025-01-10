@@ -28,13 +28,14 @@ void SerialReceiver::disconnectReceiver() {
 }
 
 QString SerialReceiver::getData() {
-    return QString::fromUtf8(m_readData);
+    return QString::fromUtf8(m_serialPort.readAll());
 }
 
+
 void SerialReceiver::handleReadyRead() {
-    m_readData.append(m_serialPort.readAll());
-    emit dataReceived(QString::fromUtf8(m_readData));
-    fileLogData(QString("INFO: Data received: %1").arg(QString::fromUtf8(m_readData)));
+    QString data = getData();
+    emit dataReceived(data);
+    fileLogData(QString("INFO: Data received: %1").arg(data));
 }
 
 void SerialReceiver::handleError(QSerialPort::SerialPortError error) {

@@ -14,13 +14,12 @@ public:
     virtual void disconnectReceiver() = 0;
     virtual QString getData() = 0;
     void fileLogData(const QString& data);
+    void setFileLogging(bool state) { enabledFileLogging = state; }
 
 private:
     bool enabledFileLogging;
     QString fileLogPath;
     QFile fileLog;
-    
-    
     
 signals:
     void dataReceived(const QString& data);
