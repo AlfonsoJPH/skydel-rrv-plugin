@@ -36,7 +36,7 @@ public slots:
 private:
   RRVConfiguration *config;
   std::unique_ptr<SerialReceiver> receiver;
-  std::unique_ptr<rrv_viewer> view;
+  rrv_viewer* view;
 };
 
 REGISTER_SKYDEL_PLUGIN(Rrv_Plugin)
