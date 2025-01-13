@@ -22,22 +22,21 @@ public:
 
   rrv_viewer* getView() const;
 
+
 public slots:
+  // Slots to update configuration
   void portNameChanged(const QString& name) { config->portName = name; }
   void baudRateChanged(int rate) { config->baudRate = rate; }
   void fileLoggingChanged(bool state) { 
     receiver->setFileLogging(state); 
     config->fileLogging = state;  
   }
-  void receiverStateChanged() 
-  { 
-  }
+  void logPathChanged(const QString& path) { config->logPath = path; }
+
 private:
   RRVConfiguration *config;
   std::unique_ptr<SerialReceiver> receiver;
-  rrv_viewer* view;
-  bool receiverState = false;
-
+  std::unique_ptr<rrv_viewer> view;
 };
 
 REGISTER_SKYDEL_PLUGIN(Rrv_Plugin)

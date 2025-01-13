@@ -14,14 +14,25 @@ Receiver::Receiver(QObject* parent, bool enabledFileLogging,
       throw std::runtime_error("Failed to open log file");
     }
   }
+  state = false;
 
   fileLogData("INFO: Receiver initialized");
 }
 
+// Dump logs messages into log file
 void Receiver::fileLogData(const QString& data)
 {
   if (enabledFileLogging)
   {
+    if (!fileLog.isOpen())
+    {
+      if (!fileLog.open(QIODevice::WriteOnly | QIODevice::Append | QIODevice::Text))
+      {
+        qWarning() << "Failed to open log file";
+        return;
+      }
+    }
+
     QTextStream out(&fileLog);
     out << data << "\n";
   }

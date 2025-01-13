@@ -12,12 +12,13 @@ public:
     void disconnectReceiver() override;
     QString getData() override;
 
-private slots:
+public slots:
     void handleReadyRead();
     void handleError(QSerialPort::SerialPortError error);
-
-signals:
-    void dataReceived(const QString& data);
+    void receiverStateChanged() override;
+    void fileLoggingChanged(bool state) override { setFileLogging(state); };
+    void portNameChanged(QString name) { m_portName = name; };
+    void baudRateChanged(int rate) { m_baudRate = rate; };
 
 private:
     QSerialPort m_serialPort;
