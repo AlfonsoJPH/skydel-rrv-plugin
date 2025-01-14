@@ -42,7 +42,7 @@ QString SerialReceiver::getData() {
 void SerialReceiver::handleReadyRead() {
     QString data = getData();
     emit dataReceived(data);
-    fileLogData(QString("INFO: Data received: %1").arg(data));
+    fileLogData(QString("INFO: Data received: \n%1").arg(data));
 }
 
 // Handles when an error occurs

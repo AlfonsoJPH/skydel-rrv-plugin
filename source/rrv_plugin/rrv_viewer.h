@@ -20,7 +20,9 @@ public:
     void updateDataPanelValue();
 
 public slots:
-    void dataReceived(const QString& data){updateDataPanelValue(data);};
+    void dataReceived(const QString& data){
+        updateDataPanelValue(data);
+    };
 
 signals:
     // Signals to update configuration  

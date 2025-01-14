@@ -16,7 +16,6 @@ public slots:
     void handleReadyRead();
     void handleError(QSerialPort::SerialPortError error);
     void receiverStateChanged() override;
-    void fileLoggingChanged(bool state) override { setFileLogging(state); };
     void portNameChanged(QString name) { m_portName = name; };
     void baudRateChanged(int rate) { m_baudRate = rate; };
 

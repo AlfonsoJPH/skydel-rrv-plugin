@@ -7,16 +7,7 @@ Receiver::Receiver(QObject* parent, bool enabledFileLogging,
                    QString fileLogPath) :
                    QObject(parent), enabledFileLogging(enabledFileLogging), 
                    fileLogPath(fileLogPath), fileLog(fileLogPath + QDir::separator() + "rrv.log") {
-  if (enabledFileLogging)
-  {
-    if (!fileLog.open(QIODevice::WriteOnly | QIODevice::Append | QIODevice::Text))
-    {
-      throw std::runtime_error("Failed to open log file");
-    }
-  }
-  state = false;
-
-  fileLogData("INFO: Receiver initialized");
+    state = false;
 }
 
 // Dump logs messages into log file
@@ -34,6 +25,6 @@ void Receiver::fileLogData(const QString& data)
     }
 
     QTextStream out(&fileLog);
-    out << data << "\n";
+    out << data;
   }
 }

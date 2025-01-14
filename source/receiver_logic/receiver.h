@@ -3,6 +3,7 @@
 #include <QString>
 #include <QObject>
 #include <QFile>
+#include <QDir>
 
 class Receiver : public QObject {
     Q_OBJECT
@@ -26,8 +27,11 @@ private:
 // Slots for updating receiver configuration
 public slots:
     virtual void receiverStateChanged() = 0;
-    virtual void fileLoggingChanged(bool state) = 0;
-    void logPathChanged(const QString& path) { fileLogPath = path; };
+    void fileLoggingChanged(bool state) { enabledFileLogging = state; };
+    void logPathChanged(const QString& path) { 
+        fileLogPath = path; 
+        fileLog.setFileName(fileLogPath + QDir::separator() + "rrv.log");    
+    };
 
 // Signals for sending data received
 signals:
