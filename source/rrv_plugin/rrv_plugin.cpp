@@ -5,7 +5,7 @@
 
 SkydelWidgets Rrv_Plugin::createUI()
 {
-  config = new RRVConfiguration(false, "/dev/ttyACM2", 9600, "");
+  config = new RRVConfiguration(false, "/dev/ttyACM2", 9600, "/home/");
   //Create receiver
   receiver = std::make_unique<SerialReceiver>(config->portName, config->baudRate, this, config->fileLogging, config->logPath);
 
@@ -39,9 +39,6 @@ SkydelWidgets Rrv_Plugin::createUI()
 
 void Rrv_Plugin::initialize()
 {
-
-  
-
 }
 
 rrv_viewer* Rrv_Plugin::getView() const
