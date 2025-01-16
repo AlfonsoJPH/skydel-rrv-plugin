@@ -13,6 +13,7 @@ target_link_libraries(rrv_plugin PUBLIC
     Qt5::Core
     Qt5::SerialPort
     receiver_logic
+    skydel_rapi
     )
 
 set_target_properties(rrv_plugin PROPERTIES CXX_STANDARD 17)

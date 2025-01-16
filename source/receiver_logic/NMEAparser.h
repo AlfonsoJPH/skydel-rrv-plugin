@@ -29,9 +29,9 @@ struct GGA
 {
     QString messageID = "Unknown"; // GGA protocol header
     UTC_Time utcTime; // hhmmss.sss
-    QString latitude = "Unknown"; // ddmm.mmmm
+    QString latitude = ""; // ddmm.mmmm
     QChar nsIndicator;  // N=north or S=south
-    QString longitude; // dddmm.mmmm
+    QString longitude = ""; // dddmm.mmmm
     QChar ewIndicator; // E=east or W=west
     int positionFixIndicator; // See Table 1-4
     int satellitesInUse; // Range 0 to 12
@@ -240,6 +240,7 @@ static bool GLLparser(const QStringList& message, struct GLL& data) {
     catch(const std::exception& e)
     {
         std::cerr << e.what() << '\n';
+        valid = false;
     }
     data = gll;
 
@@ -281,6 +282,7 @@ static bool GSAparser(const QStringList& message, struct GSA& data) {
     catch(const std::exception& e)
     {
         std::cerr << e.what() << '\n';
+        valid = false;
     }
     data = gsa;
 

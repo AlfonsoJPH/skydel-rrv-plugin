@@ -8,6 +8,9 @@
 #include <QFileDialog>
 #include "../receiver_logic//NMEAparser.h"
 #include <QString>
+#include "lla.h"
+#include "ecef.h"
+#include <QtMath>
 
 rrv_viewer::rrv_viewer(RRVConfiguration *config, QWidget *parent) :
     QWidget(parent), config(config),
@@ -102,7 +105,7 @@ void rrv_viewer::dataReceived(const QString& data)
             if (type == MessagesTypes::GGA)
             {
                 struct GGA gga;
-                if (GGAparser(messageList, gga))
+                if (GGAparser(messageList, gga) && !gga.latitude.isEmpty() && !gga.longitude.isEmpty())
                 {
                     lastValidGGA = gga;
                 }
@@ -125,7 +128,7 @@ void rrv_viewer::dataReceived(const QString& data)
             }
         }
 
-        if (lastValidGGA.messageID != "Unknwon")
+        if (lastValidGGA.messageID != "Unknwon" && !lastValidGGA.latitude.isEmpty() && !lastValidGGA.longitude.isEmpty())
         {
             QString hour = QString::number(lastValidGGA.utcTime.HOUR);
             if (hour.size() == 1) {
@@ -140,43 +143,59 @@ void rrv_viewer::dataReceived(const QString& data)
                 second = "0" + second;
             }
 
-            int latitudeFirstValue = lastValidGGA.latitude.toFloat() / 100;
-            float latitudeSecondValue = lastValidGGA.latitude.toFloat() - latitudeFirstValue * 100;
-            float latitudeValue = latitudeFirstValue + latitudeSecondValue / 60.0;
+            int latitudeFirstValue = lastValidGGA.latitude.toDouble() / 100;
+            double latitudeSecondValue = lastValidGGA.latitude.toDouble() - latitudeFirstValue * 100;
+            double latitudeValue = latitudeFirstValue + latitudeSecondValue / 60.0;
             if (lastValidGGA.nsIndicator == 'S') {
 
                 latitudeValue *= -1.0;
             }
             QString latitude = QString::number(latitudeValue, 'f', 6);
 
-            int longitudeFirstValue = lastValidGGA.longitude.toFloat() / 100;
-            float longitudeSecondValue = lastValidGGA.longitude.toFloat() - longitudeFirstValue * 100.0;
-            float longitudeValue = longitudeFirstValue + longitudeSecondValue / 60.0;
+            int longitudeFirstValue = lastValidGGA.longitude.toDouble() / 100;
+            double longitudeSecondValue = lastValidGGA.longitude.toDouble() - longitudeFirstValue * 100.0;
+            double longitudeValue = longitudeFirstValue + longitudeSecondValue / 60.0;
             if (lastValidGGA.ewIndicator == 'W') {
                 longitudeValue *= -1.0;
             }
             QString longitude = QString::number(longitudeValue, 'f', 6);
 
             QString altitudeMSL = QString::number(lastValidGGA.altitudeMSL, 'f', 2);
-            QString altitudeEllipsoid = QString::number((lastValidGGA.altitudeMSL + lastValidGGA.geoidSeparation), 'f', 2);
+            double altitudeEllipsoidValue = lastValidGGA.altitudeMSL + lastValidGGA.geoidSeparation;
+            QString altitudeEllipsoid = QString::number((altitudeEllipsoidValue), 'f', 2);
             
             ui->positionValue->setText(latitude + ", " + longitude);
             ui->altitudeMSLValue->setText(altitudeMSL);
             ui->altitudeEllipsoidValue->setText(altitudeEllipsoid);
             ui->utcValue->setText(hour + ":" + minute + ":" + second);
             ui->HDOPValue->setText(QString::number(lastValidGGA.hdop, 'f', 2));
+
+            // Geodetic to ECEF
+            Sdx::Lla llaCoordinates;
+            llaCoordinates.lat = qDegreesToRadians(latitudeValue);
+            llaCoordinates.lon = qDegreesToRadians(longitudeValue);
+            llaCoordinates.alt = altitudeEllipsoidValue;
+
+            Sdx::Ecef ecefCoordinates;
+            llaCoordinates.toEcef(ecefCoordinates);
+
+            ui->xValue->setText(QString::number(ecefCoordinates.x, 'f', 2));
+            ui->yValue->setText(QString::number(ecefCoordinates.y, 'f', 2));
+            ui->zValue->setText(QString::number(ecefCoordinates.z, 'f', 2));
+            if(lastValidGSA.messageID != "Unknwon" && lastValidGSA.fixMode != 0)
+            {
+                QString PDOP = QString::number(lastValidGSA.pdop, 'f', 2);
+                QString VDOP = QString::number(lastValidGSA.vdop, 'f', 2);
+                ui->PDOPValue->setText(PDOP);
+                ui->VDOPValue->setText(VDOP);
+                QString fixMode = QString::number(lastValidGSA.fixMode);
+                if (lastValidGSA.fixMode > 1) fixMode = fixMode + "D";            
+                ui->fixValue->setText(fixMode);
+            }
+
         }
 
-        if(lastValidGSA.messageID != "Unknwon")
-        {
-            QString PDOP = QString::number(lastValidGSA.pdop, 'f', 2);
-            QString VDOP = QString::number(lastValidGSA.vdop, 'f', 2);
-            ui->PDOPValue->setText(PDOP);
-            ui->VDOPValue->setText(VDOP);
-            QString fixMode = QString::number(lastValidGSA.fixMode);
-            if (lastValidGSA.fixMode > 1) fixMode = fixMode + "D";            
-            ui->fixValue->setText(fixMode);
-        }
+        
 
         
 
