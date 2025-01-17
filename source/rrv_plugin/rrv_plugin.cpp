@@ -2,10 +2,12 @@
 #include "rrv_viewer.h"
 #include <QThread>
 #include <QDebug>
+#include <QSerialPortInfo>
 
 SkydelWidgets Rrv_Plugin::createUI()
 {
-  config = new RRVConfiguration(false, "/dev/ttyACM2", 9600, "/home/");
+  QString portName = QSerialPortInfo::availablePorts().isEmpty() ? "" : QSerialPortInfo::availablePorts()[0].portName();
+  config = new RRVConfiguration(false, portName, 9600, QDir::homePath(), false, "127.0.0.1", "8080");
   //Create receiver
   receiver = std::make_unique<SerialReceiver>(config->portName, config->baudRate, this, config->fileLogging, config->logPath);
 
@@ -17,12 +19,15 @@ SkydelWidgets Rrv_Plugin::createUI()
   connect(view, &rrv_viewer::logPathChanged, this, &Rrv_Plugin::logPathChanged);
   
   
+  
   //Connect receiver to view
+  connect(receiver.get(), &Receiver::receiverStateChanges, view, &rrv_viewer::receiverStateChanges);
   connect(receiver.get(), &Receiver::dataReceived, view, &rrv_viewer::dataReceived);
   connect(view, &rrv_viewer::receiverStateChanged, receiver.get(), &Receiver::receiverStateChanged);
   connect(view, &rrv_viewer::portNameChanged, receiver.get(), &SerialReceiver::portNameChanged);
   connect(view, &rrv_viewer::baudRateChanged, receiver.get(), &SerialReceiver::baudRateChanged);
   connect(view, &rrv_viewer::fileLoggingChanged, receiver.get(), &Receiver::fileLoggingChanged);
+  connect(view, &rrv_viewer::networkLoggingChanged, receiver.get(), &Receiver::networkLoggingChanged);
   connect(view, &rrv_viewer::logPathChanged, receiver.get(), &Receiver::logPathChanged);
 
   //Move receiver to separate thread

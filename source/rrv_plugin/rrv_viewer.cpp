@@ -3,6 +3,7 @@
 #include <QLocale>
 #include <QScrollBar>
 #include <QComboBox>
+#include <QSpinBox>
 #include <QSerialPortInfo>
 #include <QInputDialog>
 #include <QFileDialog>
@@ -25,10 +26,17 @@ rrv_viewer::rrv_viewer(RRVConfiguration *config, QWidget *parent) :
         ui->portName->addItem(info.portName());
     }
     ui->portName->setCurrentText(config->portName);
-    ui->fileLogState->setChecked(config->fileLogging);
     ui->baudRate->setCurrentText(QString::number(config->baudRate));
+
     ui->logPath->setText(config->logPath);
+    ui->fileLogState->setChecked(config->fileLogging);
+
+    ui->logAddressValue->setText(config->networkLogAddress);
+    ui->logPortValue->setValue(config->networkLogPort.toUShort());
+    ui->networkLogState->setChecked(config->networkLogging);
+
     ui->viewData->setReadOnly(true);
+    
 
     connect(ui->portName, &QComboBox::currentTextChanged, this, [this](const QString &text) { emit portNameChanged(text); });
 
@@ -52,7 +60,7 @@ rrv_viewer::rrv_viewer(RRVConfiguration *config, QWidget *parent) :
     });
     connect(ui->logPathButton, &QPushButton::clicked, this, [this]() {
         QString path = QFileDialog::getExistingDirectory(this, tr("Open Directory"),
-                                                         "/home",
+                                                         QDir::homePath(),
                                                          QFileDialog::ShowDirsOnly
                                                          | QFileDialog::DontResolveSymlinks);
         ui->logPath->setText(path);
@@ -61,10 +69,13 @@ rrv_viewer::rrv_viewer(RRVConfiguration *config, QWidget *parent) :
     connect(ui->logPath, &QLineEdit::textChanged, this, [this](const QString &text) { emit logPathChanged(text); });
     connect(ui->fileLogState, &QCheckBox::stateChanged, this, [this](int state) { emit fileLoggingChanged(state); });
 
+    connect(ui->logAddressValue, &QLineEdit::textChanged, this, [this](const QString &text) { emit logNetworkChanged(text, QString::number(ui->logPortValue->value())); });
+    connect(ui->logPortValue, QOverload<int>::of(&QSpinBox::valueChanged), this, [this](int value) { emit logNetworkChanged(ui->logAddressValue->text(), QString::number(value)); });
+    connect(ui->networkLogState, &QCheckBox::stateChanged, this, [this](int state) { emit networkLoggingChanged(state); });
+    
     connect(ui->receiverState, &QPushButton::clicked, this, [this]() 
     { 
         emit receiverStateChanged();
-        ui->receiverState->setText(ui->receiverState->text() == "Start" ? "Stop" : "Start");
     });
 }
 
@@ -85,7 +96,17 @@ void rrv_viewer::updateDataPanelValue(const QString& dataPanelValue)
     ui->viewData->verticalScrollBar()->setValue(ui->viewData->verticalScrollBar()->maximum());
     QCoreApplication::processEvents();
 }
-
+void rrv_viewer::receiverStateChanges(bool state)
+{
+    if (state)
+    {
+        ui->receiverState->setText("Disconnect");
+    }
+    else
+    {
+        ui->receiverState->setText("Connect");
+    }
+}
 void rrv_viewer::dataReceived(const QString& data)
 {
     QStringList messages = data.split("\n");

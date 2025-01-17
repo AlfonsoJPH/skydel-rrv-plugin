@@ -7,7 +7,9 @@
 class SerialReceiver : public Receiver {
     Q_OBJECT
 public:
-    SerialReceiver(const QString& portName, int baudRate, QObject* parent = nullptr, bool enabledFileLogging = false, QString fileLogPath = "");
+    SerialReceiver(const QString& portName, int baudRate, QObject* parent = nullptr, 
+    bool enabledFileLogging = false, QString fileLogPath = "", bool enabledNetworkLogging = false,
+    QString networkLogAddress = "", QString networkLogPort = "");
     bool connectReceiver() override;
     void disconnectReceiver() override;
     QString getData() override;

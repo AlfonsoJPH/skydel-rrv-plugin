@@ -21,14 +21,20 @@ public:
 
 public slots:
     void dataReceived(const QString& data);
+    void receiverStateChanges(bool state);
 
 signals:
     // Signals to update configuration  
     void portNameChanged(const QString& name);
     void baudRateChanged(int rate);
-    void fileLoggingChanged(bool state);
     void receiverStateChanged();
+
+    void fileLoggingChanged(bool state);
     void logPathChanged(const QString& path);
+
+    void networkLoggingChanged(bool state);
+    void logNetworkChanged(const QString& address, const QString& port);
+
     
 private:
     Ui::rrv_viewer *ui;
