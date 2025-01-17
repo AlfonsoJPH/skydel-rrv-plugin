@@ -9,7 +9,7 @@ SkydelWidgets Rrv_Plugin::createUI()
   QString portName = QSerialPortInfo::availablePorts().isEmpty() ? "" : QSerialPortInfo::availablePorts()[0].portName();
   config = new RRVConfiguration(false, portName, 9600, QDir::homePath(), false, "127.0.0.1", "8080");
   //Create receiver
-  receiver = std::make_unique<SerialReceiver>(config->portName, config->baudRate, this, config->fileLogging, config->logPath);
+  receiver = std::make_unique<SerialReceiver>(config->portName, config->baudRate, this, config->fileLogging, config->logPath, config->networkLogging, config->networkLogAddress, config->networkLogPort);
 
   view = new rrv_viewer(config);
   //Connect view to config

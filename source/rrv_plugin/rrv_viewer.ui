@@ -160,7 +160,7 @@
              </size>
             </property>
             <property name="minimum">
-             <number>1</number>
+             <number>0</number>
             </property>
             <property name="maximum">
              <number>65535</number>
@@ -195,6 +195,9 @@
               <width>80</width>
               <height>24</height>
              </size>
+            </property>
+            <property name="maximum">
+             <number>65535</number>
             </property>
            </widget>
           </item>
