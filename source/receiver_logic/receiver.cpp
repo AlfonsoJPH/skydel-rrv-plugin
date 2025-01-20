@@ -37,11 +37,10 @@ void Receiver::fileLogData(const QString& data)
 void Receiver::networkLogData(const QString& data)
 {
     QByteArray byteArray;
-    emit dataReceived("Address: " + networkLogAddress.toString() + " Port: " + QString::number(networkLogPort));
     byteArray.append(data.toUtf8());
-    if (udpSocketLogging->writeDatagram(byteArray, networkLogAddress, networkLogPort) == -1)
+    if (udpSocketLogging.writeDatagram(byteArray, networkLogAddress, networkLogPort) == -1)
     {
-      throw std::runtime_error(udpSocketLogging->errorString().toStdString().c_str());
+       emit dataReceived(udpSocketLogging.errorString().toStdString().c_str());
     }
 
 }

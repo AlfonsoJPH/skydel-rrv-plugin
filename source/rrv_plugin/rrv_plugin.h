@@ -32,6 +32,10 @@ public slots:
     config->fileLogging = state;  
   }
   void logPathChanged(const QString& path) { config->logPath = path; }
+  void logNetworkChanged(const QString& adddress, const QString& port) { 
+    config->networkLogAddress = adddress; 
+    config->networkLogPort = port; 
+  }
 
 private:
   RRVConfiguration *config;

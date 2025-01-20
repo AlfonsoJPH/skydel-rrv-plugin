@@ -17,8 +17,8 @@ SkydelWidgets Rrv_Plugin::createUI()
   connect(view, &rrv_viewer::baudRateChanged, this, &Rrv_Plugin::baudRateChanged);
   connect(view, &rrv_viewer::fileLoggingChanged, this, &Rrv_Plugin::fileLoggingChanged);
   connect(view, &rrv_viewer::logPathChanged, this, &Rrv_Plugin::logPathChanged);
-  
-  
+  connect(view, &rrv_viewer::logNetworkChanged, this, &Rrv_Plugin::logNetworkChanged);
+
   
   //Connect receiver to view
   connect(receiver.get(), &Receiver::receiverStateChanges, view, &rrv_viewer::receiverStateChanges);
@@ -29,7 +29,8 @@ SkydelWidgets Rrv_Plugin::createUI()
   connect(view, &rrv_viewer::fileLoggingChanged, receiver.get(), &Receiver::fileLoggingChanged);
   connect(view, &rrv_viewer::networkLoggingChanged, receiver.get(), &Receiver::networkLoggingChanged);
   connect(view, &rrv_viewer::logPathChanged, receiver.get(), &Receiver::logPathChanged);
-
+  connect(view, &rrv_viewer::logNetworkChanged, receiver.get(), &Receiver::logNetworkChanged);
+  
   //Move receiver to separate thread
   QThread* receiverThread = new QThread(this);
   receiver->moveToThread(receiverThread);

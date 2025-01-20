@@ -35,7 +35,7 @@ private:
     bool enabledFileLogging, enabledNetworkLogging;
     
     QFile fileLog;
-    QUdpSocket *udpSocketLogging;
+    QUdpSocket udpSocketLogging;
 
     bool state;
 

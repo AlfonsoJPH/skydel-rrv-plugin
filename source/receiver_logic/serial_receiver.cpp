@@ -10,10 +10,10 @@ SerialReceiver::SerialReceiver(const QString& portName, int baudRate, QObject* p
                                           enabledNetworkLogging, networkLogAddress, 
                                           networkLogPort), 
                                m_portName(portName), m_baudRate(baudRate) {
-        connect(&m_serialPort, &QSerialPort::readyRead, this, &SerialReceiver::handleReadyRead);
-        connect(&m_serialPort, &QSerialPort::errorOccurred, this, &SerialReceiver::handleError);
+    connect(&m_serialPort, &QSerialPort::readyRead, this, &SerialReceiver::handleReadyRead);
+    connect(&m_serialPort, &QSerialPort::errorOccurred, this, &SerialReceiver::handleError);
 
-    }
+}
 
 bool SerialReceiver::connectReceiver() {
     m_serialPort.setPortName(m_portName);
