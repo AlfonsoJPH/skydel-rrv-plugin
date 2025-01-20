@@ -200,9 +200,9 @@ void rrv_viewer::dataReceived(const QString& data)
             Sdx::Ecef ecefCoordinates;
             llaCoordinates.toEcef(ecefCoordinates);
 
-            ui->xValue->setText(QString::number(ecefCoordinates.x, 'f', 2));
-            ui->yValue->setText(QString::number(ecefCoordinates.y, 'f', 2));
-            ui->zValue->setText(QString::number(ecefCoordinates.z, 'f', 2));
+            ui->xValueReceiver->setText(QString::number(ecefCoordinates.x, 'f', 2));
+            ui->yValueReceiver->setText(QString::number(ecefCoordinates.y, 'f', 2));
+            ui->zValueReceiver->setText(QString::number(ecefCoordinates.z, 'f', 2));
             if(lastValidGSA.messageID != "Unknwon" && lastValidGSA.fixMode != 0)
             {
                 QString PDOP = QString::number(lastValidGSA.pdop, 'f', 2);
