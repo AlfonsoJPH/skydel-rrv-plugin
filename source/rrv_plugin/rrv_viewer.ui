@@ -41,9 +41,9 @@
         </size>
        </property>
        <property name="currentIndex">
-        <number>0</number>
+        <number>2</number>
        </property>
-       <widget class="QWidget" name="Config">
+       <widget class="QWidget" name="SerialConfig">
         <attribute name="title">
          <string>Serial</string>
         </attribute>
@@ -61,7 +61,7 @@
            </property>
            <layout class="QGridLayout" name="gridLayout_3">
             <item row="3" column="0" colspan="3">
-             <widget class="QPushButton" name="logPathButton">
+             <widget class="QPushButton" name="serialLogPathButton">
               <property name="minimumSize">
                <size>
                 <width>0</width>
@@ -74,7 +74,7 @@
              </widget>
             </item>
             <item row="7" column="2">
-             <widget class="QCheckBox" name="networkLogState">
+             <widget class="QCheckBox" name="serialNetworkLogState">
               <property name="text">
                <string>Network Logging</string>
               </property>
@@ -98,7 +98,7 @@
              </widget>
             </item>
             <item row="4" column="2">
-             <widget class="QLineEdit" name="logAddressValue">
+             <widget class="QLineEdit" name="serialLogAddressValue">
               <property name="minimumSize">
                <size>
                 <width>0</width>
@@ -115,7 +115,7 @@
              </widget>
             </item>
             <item row="2" column="2">
-             <widget class="QLineEdit" name="logPath">
+             <widget class="QLineEdit" name="serialLogPath">
               <property name="minimumSize">
                <size>
                 <width>0</width>
@@ -142,14 +142,14 @@
              </widget>
             </item>
             <item row="7" column="0">
-             <widget class="QCheckBox" name="fileLogState">
+             <widget class="QCheckBox" name="serialFileLogState">
               <property name="text">
                <string>File log</string>
               </property>
              </widget>
             </item>
             <item row="5" column="2">
-             <widget class="QSpinBox" name="logPortValue">
+             <widget class="QSpinBox" name="serialLogPortValue">
               <property name="minimumSize">
                <size>
                 <width>0</width>
@@ -175,64 +175,6 @@
              <widget class="QLabel" name="label">
               <property name="text">
                <string>Port:</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item>
-          <widget class="QGroupBox" name="gridGroupBox">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-             <horstretch>1</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>208</width>
-             <height>99</height>
-            </size>
-           </property>
-           <property name="title">
-            <string>Network Logging Configuration</string>
-           </property>
-           <layout class="QGridLayout" name="gridLayout_2">
-            <item row="1" column="1">
-             <widget class="QSpinBox" name="portValue">
-              <property name="minimumSize">
-               <size>
-                <width>80</width>
-                <height>24</height>
-               </size>
-              </property>
-              <property name="maximum">
-               <number>65535</number>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="0">
-             <widget class="QLabel" name="label_4">
-              <property name="text">
-               <string>Port</string>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="1">
-             <widget class="QLineEdit" name="networkAddressValue">
-              <property name="minimumSize">
-               <size>
-                <width>0</width>
-                <height>24</height>
-               </size>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="0">
-             <widget class="QLabel" name="networkAddressLabel">
-              <property name="text">
-               <string>Network address</string>
               </property>
              </widget>
             </item>
@@ -270,7 +212,7 @@
              </widget>
             </item>
             <item row="0" column="1">
-             <widget class="QLineEdit" name="logPathObserverSimulator">
+             <widget class="QLineEdit" name="simulationLogPath">
               <property name="minimumSize">
                <size>
                 <width>0</width>
@@ -280,7 +222,7 @@
              </widget>
             </item>
             <item row="1" column="0" colspan="2">
-             <widget class="QPushButton" name="logPathButtonObserverSimulator">
+             <widget class="QPushButton" name="simulationLogPathButton">
               <property name="minimumSize">
                <size>
                 <width>0</width>
@@ -300,7 +242,7 @@
              </widget>
             </item>
             <item row="2" column="1">
-             <widget class="QLineEdit" name="logAddressValueObserverSimulator">
+             <widget class="QLineEdit" name="simulationLogAddressValue">
               <property name="minimumSize">
                <size>
                 <width>0</width>
@@ -317,7 +259,7 @@
              </widget>
             </item>
             <item row="3" column="1">
-             <widget class="QSpinBox" name="logPortValueObserverSimulator">
+             <widget class="QSpinBox" name="simulationLogPortValue">
               <property name="minimumSize">
                <size>
                 <width>0</width>
@@ -333,75 +275,17 @@
              </widget>
             </item>
             <item row="4" column="0">
-             <widget class="QCheckBox" name="fileLogStateObserverSimulator">
+             <widget class="QCheckBox" name="simulationFileLogState">
               <property name="text">
                <string>File log</string>
               </property>
              </widget>
             </item>
             <item row="4" column="1">
-             <widget class="QCheckBox" name="networkLogStateObserverSimulator">
+             <widget class="QCheckBox" name="simulationNetworkLogState">
               <property name="text">
                <string>Network Logging</string>
               </property>
-             </widget>
-            </item>
-            <item row="5" column="0" colspan="2">
-             <widget class="QGroupBox" name="NetworkObserverSimulator">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                <horstretch>1</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="minimumSize">
-               <size>
-                <width>208</width>
-                <height>99</height>
-               </size>
-              </property>
-              <property name="title">
-               <string>Network Logging Configuration</string>
-              </property>
-              <layout class="QGridLayout" name="gridLayout_4">
-               <item row="1" column="1">
-                <widget class="QSpinBox" name="portValueObserverSimulator">
-                 <property name="minimumSize">
-                  <size>
-                   <width>80</width>
-                   <height>24</height>
-                  </size>
-                 </property>
-                 <property name="maximum">
-                  <number>65535</number>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="0">
-                <widget class="QLabel" name="label_9">
-                 <property name="text">
-                  <string>Port</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="0" column="1">
-                <widget class="QLineEdit" name="networkAddressValueObserverSimulator">
-                 <property name="minimumSize">
-                  <size>
-                   <width>0</width>
-                   <height>24</height>
-                  </size>
-                 </property>
-                </widget>
-               </item>
-               <item row="0" column="0">
-                <widget class="QLabel" name="networkAddressLabelObserverSimulator">
-                 <property name="text">
-                  <string>Network address</string>
-                 </property>
-                </widget>
-               </item>
-              </layout>
              </widget>
             </item>
            </layout>
@@ -421,7 +305,7 @@
              </widget>
             </item>
             <item row="0" column="1">
-             <widget class="QLineEdit" name="logPathObserverReceiver">
+             <widget class="QLineEdit" name="receiverLogPath">
               <property name="minimumSize">
                <size>
                 <width>0</width>
@@ -431,7 +315,7 @@
              </widget>
             </item>
             <item row="1" column="0" colspan="2">
-             <widget class="QPushButton" name="logPathButtonObserverReceiver">
+             <widget class="QPushButton" name="receiverLogPathButton">
               <property name="minimumSize">
                <size>
                 <width>0</width>
@@ -451,7 +335,7 @@
              </widget>
             </item>
             <item row="2" column="1">
-             <widget class="QLineEdit" name="logAddressValueObserverReceiver">
+             <widget class="QLineEdit" name="receiverLogAddressValue">
               <property name="minimumSize">
                <size>
                 <width>0</width>
@@ -468,7 +352,7 @@
              </widget>
             </item>
             <item row="3" column="1">
-             <widget class="QSpinBox" name="logPortValueObserverReceiver">
+             <widget class="QSpinBox" name="receiverLogPortValue">
               <property name="minimumSize">
                <size>
                 <width>0</width>
@@ -484,75 +368,17 @@
              </widget>
             </item>
             <item row="4" column="0">
-             <widget class="QCheckBox" name="fileLogStateObserverReceiver">
+             <widget class="QCheckBox" name="receiverFileLogState">
               <property name="text">
                <string>File log</string>
               </property>
              </widget>
             </item>
             <item row="4" column="1">
-             <widget class="QCheckBox" name="networkLogStateObserverReceiver">
+             <widget class="QCheckBox" name="receiverNetworkLogState">
               <property name="text">
                <string>Network Logging</string>
               </property>
-             </widget>
-            </item>
-            <item row="5" column="0" colspan="2">
-             <widget class="QGroupBox" name="NetworkObserverReceiver">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                <horstretch>1</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="minimumSize">
-               <size>
-                <width>208</width>
-                <height>99</height>
-               </size>
-              </property>
-              <property name="title">
-               <string>Network Logging Configuration</string>
-              </property>
-              <layout class="QGridLayout" name="gridLayout_5">
-               <item row="1" column="1">
-                <widget class="QSpinBox" name="portValueObserverReceiver">
-                 <property name="minimumSize">
-                  <size>
-                   <width>80</width>
-                   <height>24</height>
-                  </size>
-                 </property>
-                 <property name="maximum">
-                  <number>65535</number>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="0">
-                <widget class="QLabel" name="label_13">
-                 <property name="text">
-                  <string>Port</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="0" column="1">
-                <widget class="QLineEdit" name="networkAddressValueObserverReceiver">
-                 <property name="minimumSize">
-                  <size>
-                   <width>0</width>
-                   <height>24</height>
-                  </size>
-                 </property>
-                </widget>
-               </item>
-               <item row="0" column="0">
-                <widget class="QLabel" name="networkAddressLabelObserverReceiver">
-                 <property name="text">
-                  <string>Network address</string>
-                 </property>
-                </widget>
-               </item>
-              </layout>
              </widget>
             </item>
            </layout>
