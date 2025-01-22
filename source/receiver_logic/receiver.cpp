@@ -3,22 +3,16 @@
 #include <iostream>
 #include <QTextStream>
 
-Receiver::Receiver(QObject* parent, bool enabledFileLogging,
-                   QString fileLogPath, bool enabledNetworkLogging,
-                   QString networkLogAddress, QString networkLogPort) :
-                   QObject(parent), enabledFileLogging(enabledFileLogging), 
-                   fileLogPath(fileLogPath), fileLog(fileLogPath + QDir::separator() + "rrv.log"),
-                   enabledNetworkLogging(enabledNetworkLogging)
+Receiver::Receiver(QObject* parent, QSharedPointer<RRVConfiguration> config) :
+                   QObject(parent), config(config), fileLog(config->receiverLogPath + QDir::separator() + "rrv.log")
                   {
     state = false;
-    this->networkLogAddress = QHostAddress(networkLogAddress);
-    this->networkLogPort = networkLogPort.toUShort();
 }
 
 // Dump logs messages into log file
 void Receiver::fileLogData(const QString& data)
 {
-  if (enabledFileLogging)
+  if (config->serialFileLogging)
   {
     if (!fileLog.isOpen())
     {
@@ -38,7 +32,7 @@ void Receiver::networkLogData(const QString& data)
 {
     QByteArray byteArray;
     byteArray.append(data.toUtf8());
-    if (udpSocketLogging.writeDatagram(byteArray, networkLogAddress, networkLogPort) == -1)
+    if (udpSocketLogging.writeDatagram(byteArray, config->serialNetworkLogAddress, config->serialNetworkLogPort) == -1)
     {
        emit dataReceived(udpSocketLogging.errorString().toStdString().c_str());
     }

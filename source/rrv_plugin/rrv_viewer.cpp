@@ -7,13 +7,13 @@
 #include <QSerialPortInfo>
 #include <QInputDialog>
 #include <QFileDialog>
-#include "../receiver_logic//NMEAparser.h"
+#include "../receiver_logic/NMEAparser.h"
 #include <QString>
 #include "lla.h"
 #include "ecef.h"
 #include <QtMath>
 
-rrv_viewer::rrv_viewer(RRVConfiguration *config, QWidget *parent) :
+rrv_viewer::rrv_viewer(QSharedPointer<RRVConfiguration> config, QWidget *parent) :
     QWidget(parent), config(config),
     ui(new Ui::rrv_viewer)
 {
@@ -31,26 +31,28 @@ rrv_viewer::rrv_viewer(RRVConfiguration *config, QWidget *parent) :
     ui->serialLogPath->setText(config->serialLogPath);
     ui->serialFileLogState->setChecked(config->serialFileLogging);
 
-    ui->serialLogAddressValue->setText(config->serialNetworkLogAddress);
-    ui->serialLogPortValue->setValue(config->serialNetworkLogPort.toUShort());
+    ui->serialLogAddressValue->setText(config->serialNetworkLogAddress.toString());
+    ui->serialLogPortValue->setValue(config->serialNetworkLogPort);
     ui->serialNetworkLogState->setChecked(config->serialNetworkLogging);
 
     ui->simulationLogPath->setText(config->simulationLogPath);
     ui->simulationFileLogState->setChecked(config->simulationFileLogging);
-    ui->simulationLogAddressValue->setText(config->simulationNetworkLogAddress);
-    ui->simulationLogPortValue->setValue(config->simulationNetworkLogPort.toUShort());
+    ui->simulationLogAddressValue->setText(config->simulationNetworkLogAddress.toString());
+    ui->simulationLogPortValue->setValue(config->simulationNetworkLogPort);
     ui->simulationNetworkLogState->setChecked(config->simulationNetworkLogging);
     
     ui->receiverLogPath->setText(config->receiverLogPath);
     ui->receiverFileLogState->setChecked(config->receiverFileLogging);
-    ui->receiverLogAddressValue->setText(config->receiverNetworkLogAddress);
-    ui->receiverLogPortValue->setValue(config->receiverNetworkLogPort.toUShort());
+    ui->receiverLogAddressValue->setText(config->receiverNetworkLogAddress.toString());
+    ui->receiverLogPortValue->setValue(config->receiverNetworkLogPort);
     ui->receiverNetworkLogState->setChecked(config->receiverNetworkLogging);
 
     ui->viewData->setReadOnly(true);
     
 
-    connect(ui->portName, &QComboBox::currentTextChanged, this, [this](const QString &text) { emit portNameChanged(text); });
+    connect(ui->portName, &QComboBox::currentTextChanged, this, [this](const QString &text) { 
+        this->config->serialPortName = text; 
+    });
 
     ui->baudRate->addItem("Other");
     connect(ui->baudRate, &QComboBox::currentTextChanged, this, [this](const QString &text) {
@@ -68,7 +70,7 @@ rrv_viewer::rrv_viewer(RRVConfiguration *config, QWidget *parent) :
             value = text.toInt();
         }
 
-        emit baudRateChanged(value);
+        this->config->baudRate = value;
     });
     connect(ui->serialLogPathButton, &QPushButton::clicked, this, [this]() {
         QString path = QFileDialog::getExistingDirectory(this, tr("Open Directory"),
@@ -76,14 +78,27 @@ rrv_viewer::rrv_viewer(RRVConfiguration *config, QWidget *parent) :
                                                          QFileDialog::ShowDirsOnly
                                                          | QFileDialog::DontResolveSymlinks);
         ui->serialLogPath->setText(path);
-        emit serialLogPathChanged(path);
+        this->config->serialLogPath = path;
+        emit serialConfigChanged();
     });
-    connect(ui->serialLogPath, &QLineEdit::textChanged, this, [this](const QString &text) { emit serialLogPathChanged(text); });
-    connect(ui->serialFileLogState, &QCheckBox::stateChanged, this, [this](int state) { emit serialFileLoggingChanged(state); });
+    connect(ui->serialLogPath, &QLineEdit::textChanged, this, [this](const QString &text) {
+        this->config->serialLogPath = text;
+        emit serialConfigChanged();
+    });
+    connect(ui->serialFileLogState, &QCheckBox::stateChanged, this, [this](int state) {
+        this->config->serialFileLogging = state;
+    });
 
-    connect(ui->serialLogAddressValue, &QLineEdit::textChanged, this, [this](const QString &text) { emit serialLogNetworkChanged(text, QString::number(ui->serialLogPortValue->value())); });
-    connect(ui->serialLogPortValue, QOverload<int>::of(&QSpinBox::valueChanged), this, [this](int value) { emit serialLogNetworkChanged(ui->serialLogAddressValue->text(), QString::number(value)); });
-    connect(ui->serialNetworkLogState, &QCheckBox::stateChanged, this, [this](int state) { emit serialNetworkLoggingChanged(state); });
+    connect(ui->serialLogAddressValue, &QLineEdit::textChanged, this, [this](const QString &text) {
+        this->config->serialNetworkLogAddress = QHostAddress(text);
+    });
+    connect(ui->serialLogPortValue, QOverload<int>::of(&QSpinBox::valueChanged), this, [this](int value) { 
+        this->config->serialNetworkLogPort = value;
+    });
+
+    connect(ui->serialNetworkLogState, &QCheckBox::stateChanged, this, [this](int state) { 
+        this->config->serialNetworkLogging = state;
+    });
     
     connect(ui->receiverState, &QPushButton::clicked, this, [this]() 
     { 
@@ -96,27 +111,51 @@ rrv_viewer::rrv_viewer(RRVConfiguration *config, QWidget *parent) :
                                                          QFileDialog::ShowDirsOnly
                                                          | QFileDialog::DontResolveSymlinks);
         ui->receiverLogPath->setText(path);
-        emit receiverLogPathChanged(path);
+        this->config->receiverLogPath = path;
+        emit observerConfigChanged();
     });
-    connect(ui->receiverLogPath, &QLineEdit::textChanged, this, [this](const QString &text) { emit receiverLogPathChanged(text); });
-    connect(ui->receiverFileLogState, &QCheckBox::stateChanged, this, [this](int state) { emit receiverFileLoggingChanged(state); });
-    connect(ui->receiverLogAddressValue, &QLineEdit::textChanged, this, [this](const QString &text) { emit receiverLogNetworkChanged(text, QString::number(ui->receiverLogPortValue->value())); });
-    connect(ui->receiverLogPortValue, QOverload<int>::of(&QSpinBox::valueChanged), this, [this](int value) { emit receiverLogNetworkChanged(ui->receiverLogAddressValue->text(), QString::number(value)); });
-    connect(ui->receiverNetworkLogState, &QCheckBox::stateChanged, this, [this](int state) { emit receiverNetworkLoggingChanged(state); });
-    
+    connect(ui->receiverLogPath, &QLineEdit::textChanged, this, [this](const QString &text) {
+        this->config->receiverLogPath = text;
+        emit observerConfigChanged();
+    });
+    connect(ui->receiverFileLogState, &QCheckBox::stateChanged, this, [this](int state) {
+        this->config->receiverFileLogging = state;
+    });
+    connect(ui->receiverLogAddressValue, &QLineEdit::textChanged, this, [this](const QString &text) {
+        this->config->receiverNetworkLogAddress = QHostAddress(text);
+    });
+    connect(ui->receiverLogPortValue, QOverload<int>::of(&QSpinBox::valueChanged), this, [this](int value) {
+        this->config->receiverNetworkLogPort = value;
+    });
+    connect(ui->receiverNetworkLogState, &QCheckBox::stateChanged, this, [this](int state) {
+        this->config->receiverNetworkLogging = state;
+    });
+
     connect(ui->simulationLogPathButton, &QPushButton::clicked, this, [this]() {
         QString path = QFileDialog::getExistingDirectory(this, tr("Open Directory"),
                                                          QDir::homePath(),
                                                          QFileDialog::ShowDirsOnly
                                                          | QFileDialog::DontResolveSymlinks);
         ui->simulationLogPath->setText(path);
-        emit simulationLogPathChanged(path);
+        this->config->simulationLogPath = path;
+        emit observerConfigChanged();
     });
-    connect(ui->simulationLogPath, &QLineEdit::textChanged, this, [this](const QString &text) { emit simulationLogPathChanged(text); });
-    connect(ui->simulationFileLogState, &QCheckBox::stateChanged, this, [this](int state) { emit simulationFileLoggingChanged(state); });
-    connect(ui->simulationLogAddressValue, &QLineEdit::textChanged, this, [this](const QString &text) { emit simulationLogNetworkChanged(text, QString::number(ui->simulationLogPortValue->value())); });
-    connect(ui->simulationLogPortValue, QOverload<int>::of(&QSpinBox::valueChanged), this, [this](int value) { emit simulationLogNetworkChanged(ui->simulationLogAddressValue->text(), QString::number(value)); });
-    connect(ui->simulationNetworkLogState, &QCheckBox::stateChanged, this, [this](int state) { emit simulationNetworkLoggingChanged(state); });
+    connect(ui->simulationLogPath, &QLineEdit::textChanged, this, [this](const QString &text) {
+        this->config->simulationLogPath = text;
+        emit observerConfigChanged();
+    });
+    connect(ui->simulationFileLogState, &QCheckBox::stateChanged, this, [this](int state) {
+        this->config->simulationFileLogging = state;
+    });
+    connect(ui->simulationLogAddressValue, &QLineEdit::textChanged, this, [this](const QString &text) {
+        this->config->simulationNetworkLogAddress = QHostAddress(text);
+    });
+    connect(ui->simulationLogPortValue, QOverload<int>::of(&QSpinBox::valueChanged), this, [this](int value) {
+        this->config->simulationNetworkLogPort = value;
+    });
+    connect(ui->simulationNetworkLogState, &QCheckBox::stateChanged, this, [this](int state) {
+        this->config->simulationNetworkLogging = state;
+    });
     
 }
 

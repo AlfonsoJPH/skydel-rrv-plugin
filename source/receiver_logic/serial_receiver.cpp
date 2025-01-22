@@ -2,28 +2,15 @@
 #include <QDebug>
 #include <QFile>
 
-SerialReceiver::SerialReceiver(const QString& portName, int baudRate, QObject* parent, 
-                               bool enabledFileLogging, QString fileLogPath, 
-                               bool enabledNetworkLogging, QString networkLogAddress, 
-                               QString networkLogPort)
-                               : Receiver(parent, enabledFileLogging, fileLogPath, 
-                                          enabledNetworkLogging, networkLogAddress, 
-                                          networkLogPort), 
-                               m_portName(portName), m_baudRate(baudRate) {
-    connect(&m_serialPort, &QSerialPort::readyRead, this, &SerialReceiver::handleReadyRead);
-    connect(&m_serialPort, &QSerialPort::errorOccurred, this, &SerialReceiver::handleError);
-
-}
-
 bool SerialReceiver::connectReceiver() {
-    m_serialPort.setPortName(m_portName);
-    m_serialPort.setBaudRate(m_baudRate);
+    m_serialPort.setPortName(config->serialPortName);
+    m_serialPort.setBaudRate(config->baudRate);
     if (!m_serialPort.open(QIODevice::ReadWrite)) {
-        logData(QString("ERROR: Failed to open port %1, error: %2").arg(m_portName).arg(m_serialPort.errorString()));
-        qWarning() << "Failed to open port" << m_portName << ", error:" << m_serialPort.errorString();
+        logData(QString("ERROR: Failed to open port %1, error: %2").arg(config->serialPortName).arg(m_serialPort.errorString()));
+        qWarning() << "Failed to open port" << config->baudRate << ", error:" << m_serialPort.errorString();
         return false;
     }
-    logData(QString("INFO: Connected to port %1").arg(m_portName));
+    logData(QString("INFO: Connected to port %1").arg(config->baudRate));
     emit receiverStateChanges(true);
 
     return true;
@@ -31,7 +18,7 @@ bool SerialReceiver::connectReceiver() {
 
 void SerialReceiver::disconnectReceiver() {
     if (m_serialPort.isOpen()) {
-        logData(QString("INFO: Disconnected from port %1").arg(m_portName));
+        logData(QString("INFO: Disconnected from port %1").arg(config->baudRate));
         m_serialPort.close();
 
     } else {

@@ -7,33 +7,14 @@
 
 
 PositionLogger::PositionLogger(SkydelNotifierInterface* skydelNotifier,
-                               const QHostAddress& simulationAddress,
-                               uint16_t simulationPort,
-                               bool enableSimulationNetworkLogging,
-                               bool enableSimulationFileLogging,
-                               const QString& simulationLogPath,
-                               const QHostAddress& receiverAddress,
-                               uint16_t receiverPort,
-                               bool enableReceiverNetworkLogging,
-                               bool enableReceiverFileLogging,
-                               const QString& receiverLogPath
-                               ) :
+                               QSharedPointer<RRVConfiguration> config) :
                                 m_skydelNotifier(skydelNotifier),
-                                m_enableSimulationNetworkLogging(enableSimulationNetworkLogging),
-                                m_enableSimulationFileLogging(enableSimulationFileLogging),
-                                m_simulationAddress(simulationAddress),
-                                m_simulationPort(simulationPort),
-                                m_simulationLogPath(simulationLogPath),
-                                m_simulationFile(m_simulationLogPath + QDir::separator() + "simulation_position_observer_output.csv"),
+                                config(config),
+                                m_simulationFile(config->simulationLogPath + QDir::separator() + "simulation_position_observer_output.csv"),
 
-                                m_enableReceiverNetworkLogging(enableReceiverNetworkLogging),
-                                m_enableReceiverFileLogging(enableReceiverFileLogging),
-                                m_receiverAddress(receiverAddress),
-                                m_receiverPort(receiverPort),
-                                m_receiverLogPath(receiverLogPath),
-                                m_receiverFile(m_receiverLogPath + QDir::separator() + "receiver_position_observer_output.csv")
+                                m_receiverFile(config->receiverLogPath + QDir::separator() + "receiver_position_observer_output.csv")
 {
-  if (m_enableSimulationFileLogging)
+  if (config->simulationFileLogging)
   {
     if (!m_simulationFile.open(QIODevice::WriteOnly | QIODevice::Append | QIODevice::Text))
     {
@@ -41,7 +22,7 @@ PositionLogger::PositionLogger(SkydelNotifierInterface* skydelNotifier,
     }
   }
 
-  if (m_enableReceiverFileLogging)
+  if (config->receiverFileLogging)
   {
     if (!m_receiverFile.open(QIODevice::WriteOnly | QIODevice::Append | QIODevice::Text))
     {
@@ -69,17 +50,17 @@ void PositionLogger::pushPosition(const TimedPosition& p)
   emit updatePosition(simulation_p, m_lastReceiverPosition);
   }
 
-  if (m_enableSimulationNetworkLogging)
+  if (config->simulationFileLogging)
   {
     QByteArray byteArray;
     byteArray.append(formatedSimulationPosition.toUtf8());
-    if (m_simulationSocket.writeDatagram(byteArray, m_simulationAddress, m_simulationPort) == -1)
+    if (m_simulationSocket.writeDatagram(byteArray, config->simulationNetworkLogAddress, config->simulationNetworkLogPort) == -1)
     {
       throw std::runtime_error(m_simulationSocket.errorString().toStdString().c_str());
     }
   }
 
-  if (m_enableSimulationFileLogging)
+  if (config->simulationFileLogging)
   {
     if (!m_simulationFile.isOpen())
     {
@@ -97,17 +78,17 @@ void PositionLogger::pushPosition(const TimedPosition& p)
     }
   }
 
-  if (m_enableReceiverNetworkLogging)
+  if (config->receiverNetworkLogging)
   {
     QByteArray byteArray;
     byteArray.append(formatedReceiverPosition.toUtf8());
-    if (m_receiverSocket.writeDatagram(byteArray, m_receiverAddress, m_receiverPort) == -1)
+    if (m_receiverSocket.writeDatagram(byteArray, config->receiverNetworkLogAddress, config->receiverNetworkLogPort) == -1)
     {
       throw std::runtime_error(m_receiverSocket.errorString().toStdString().c_str());
     }
   }
 
-  if (m_enableReceiverFileLogging)
+  if (config->receiverFileLogging)
   {
     if (!m_receiverFile.isOpen())
     {

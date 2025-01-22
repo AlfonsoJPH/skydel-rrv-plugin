@@ -3,9 +3,14 @@
 #include <QFile>
 #include <QtNetwork/QUdpSocket>
 #include <QString>
-#include "ecef.h"
+#include <QSharedPointer>
+#include <QDir>
 
+#include "ecef.h"
 #include "skydel_plug_ins/skydel_plugin.h"
+
+#include "rrv_configuration.h"
+
 // May have to change init and give him the view since it can be created and destroyed with simulations
 // Runtime position observer implementation
 class PositionLogger : public SkydelRuntimePositionObserver
@@ -13,17 +18,7 @@ class PositionLogger : public SkydelRuntimePositionObserver
   Q_OBJECT
 public:
   explicit PositionLogger(SkydelNotifierInterface* skydelNotifier,
-                          const QHostAddress& simulationAddress,
-                          uint16_t simulationPort,
-                          bool enableSimulationNetworkLogging,
-                          bool enableSimulationFileLogging,
-                          const QString& simulationLogPath,
-
-                          const QHostAddress& receiverAddress,
-                          uint16_t receiverPort,
-                          bool enableReceiverNetworkLogging,
-                          bool enableReceiverFileLogging,
-                          const QString& receiverLogPath);// Called at simulation initialization phase
+                          QSharedPointer<RRVConfiguration> config);// Called at simulation initialization phase
   ~PositionLogger();                               // Called at simluation ending phase
   void pushPosition(
     const SkydelRuntimePositionObserver::TimedPosition&) override; // Called at simluation running phase at 1000 Hz
@@ -38,40 +33,21 @@ public slots:
     m_lastReceiverPosition.z = receiver_p.z; 
   }
 
-  void setSimulationFileLogging(bool state) { m_enableSimulationFileLogging = state; }
-  void setSimulationLogPath(const QString& path) { m_simulationLogPath = path; }
-  void setSimulationNetworkLogging(bool state) { m_enableSimulationNetworkLogging = state; }
-  void setSimulationLogNetwork(const QString& address, const QString& port) { 
-    m_simulationAddress = QHostAddress(address); 
-    m_simulationPort = port.toUShort();
+  void configChanged() {
+    m_receiverFile.setFileName(config->receiverLogPath + QDir::separator() + "receiver_position_observer_output.csv");
+    m_simulationFile.setFileName(config->simulationLogPath + QDir::separator() + "simulation_position_observer_output.csv");
   }
 
-  void setReceiverFileLogging(bool state) { m_enableReceiverFileLogging = state; }
-  void setReceiverLogPath(const QString& path) { m_receiverLogPath = path; }
-  void setReceiverNetworkLogging(bool state) { m_enableReceiverNetworkLogging = state; }
-  void setReceiverLogNetwork(const QString& address, const QString& port) { 
-    m_receiverAddress = QHostAddress(address); 
-    m_receiverPort = port.toUShort();
-  }
 
 private:
   QString toString(const Sdx::Ecef& p);
 
   SkydelNotifierInterface* m_skydelNotifier;
+  QSharedPointer<RRVConfiguration> config;
 
-  bool m_enableSimulationFileLogging;
-  bool m_enableSimulationNetworkLogging;
-  QHostAddress m_simulationAddress;
-  uint16_t m_simulationPort;
-  QString m_simulationLogPath;
   QFile m_simulationFile;
   QUdpSocket m_simulationSocket;
 
-  bool m_enableReceiverFileLogging;
-  bool m_enableReceiverNetworkLogging;
-  QHostAddress m_receiverAddress;
-  uint16_t m_receiverPort;
-  QString m_receiverLogPath;
   QFile m_receiverFile;
   QUdpSocket m_receiverSocket;
   
