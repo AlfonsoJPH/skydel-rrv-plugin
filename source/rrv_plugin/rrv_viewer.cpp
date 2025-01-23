@@ -13,10 +13,15 @@
 #include "ecef.h"
 #include <QtMath>
 
-rrv_viewer::rrv_viewer(QSharedPointer<RRVConfiguration> config, QWidget *parent) :
-    QWidget(parent), config(config),
+rrv_viewer::rrv_viewer(QSharedPointer<RRVConfiguration> config, 
+                       QSharedPointer<Sdx::Ecef> receiverPosition, 
+                       QSharedPointer<Sdx::Ecef> simulationPosition,
+                       QWidget *parent) :
+                QWidget(parent), config(config), 
     ui(new Ui::rrv_viewer)
 {
+    this->receiverPosition = receiverPosition;
+    this->simulationPosition = simulationPosition;
     ui->setupUi(this);
     ui->baudRate->clear();
     ui->baudRate->addItems({"110", "300", "600", "1200", "2400", "4800", "9600", "14400", "19200", "38400", "57600", "115200", "128000", "256000"});
@@ -274,7 +279,10 @@ void rrv_viewer::dataReceived(const QString& data)
 
             Sdx::Ecef ecefCoordinates;
             llaCoordinates.toEcef(ecefCoordinates);
-            emit validECEF(ecefCoordinates);
+
+            receiverPosition->x = ecefCoordinates.x;
+            receiverPosition->y = ecefCoordinates.y;
+            receiverPosition->z = ecefCoordinates.z;
 
             if(lastValidGSA.messageID != "Unknwon" && lastValidGSA.fixMode != 0)
             {
@@ -286,19 +294,18 @@ void rrv_viewer::dataReceived(const QString& data)
                 if (lastValidGSA.fixMode > 1) fixMode = fixMode + "D";            
                 ui->fixValue->setText(fixMode);
             }
+            ui->xValueSimulator->setText(QString::number(simulationPosition->x, 'f', 2));
+            ui->yValueSimulator->setText(QString::number(simulationPosition->y, 'f', 2));
+            ui->zValueSimulator->setText(QString::number(simulationPosition->z, 'f', 2));
+
+            ui->xValueReceiver->setText(QString::number(receiverPosition->x, 'f', 2));
+            ui->yValueReceiver->setText(QString::number(receiverPosition->y, 'f', 2));
+            ui->zValueReceiver->setText(QString::number(receiverPosition->z, 'f', 2));
+
         }
     }
     catch(const std::exception& e)
     {
         std::cerr << e.what() << '\n';
     }
-}
-void rrv_viewer::observerDataReceived(Sdx::Ecef simulation_p, Sdx::Ecef receiver_p){
-    ui->xValueSimulator->setText(QString::number(simulation_p.x, 'f', 2));
-    ui->yValueSimulator->setText(QString::number(simulation_p.y, 'f', 2));
-    ui->zValueSimulator->setText(QString::number(simulation_p.z, 'f', 2));
-
-    ui->xValueReceiver->setText(QString::number(receiver_p.x, 'f', 2));
-    ui->yValueReceiver->setText(QString::number(receiver_p.y, 'f', 2));
-    ui->zValueReceiver->setText(QString::number(receiver_p.z, 'f', 2));
 }

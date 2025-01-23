@@ -7,14 +7,15 @@
 SkydelWidgets Rrv_Plugin::createUI()
 {
   QString portName = QSerialPortInfo::availablePorts().isEmpty() ? "" : QSerialPortInfo::availablePorts()[0].portName();
-  
+  receiverPosition = QSharedPointer<Sdx::Ecef>::create(0,0,0);
+  simulationPosition = QSharedPointer<Sdx::Ecef>::create(0,0,0);
   config = QSharedPointer<RRVConfiguration>::create(false, portName, 9600, QDir::homePath(), false, QHostAddress("127.0.0.1"), 8080,
                                                     false, QDir::homePath(), false, QHostAddress("127.0.0.1"), 8081,
                                                     false, QDir::homePath(), false, QHostAddress("127.0.0.1"), 8081);
   //Create receiver
   receiver = std::make_unique<SerialReceiver>(this, config);
 
-  view = new rrv_viewer(config);
+  view = new rrv_viewer(config, receiverPosition, simulationPosition);
   //Connect view to config
   connect(view, &rrv_viewer::serialConfigChanged, receiver.get(), &Receiver::configChanged);
   connect(view, &rrv_viewer::observerConfigChanged, this, &Rrv_Plugin::observerConfigChanged);
@@ -34,11 +35,6 @@ SkydelWidgets Rrv_Plugin::createUI()
 
   //Start receiver thread
   receiverThread->start();
-
-
-  //Connect observers to view
-  connect(this, &Rrv_Plugin::observerPosition, view, &rrv_viewer::observerDataReceived);
-  connect(view, &rrv_viewer::validECEF, this, &Rrv_Plugin::updatedReceiverPosition);
 
 
   return {view};

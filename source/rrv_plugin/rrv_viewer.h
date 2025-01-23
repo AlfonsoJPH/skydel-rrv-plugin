@@ -17,14 +17,16 @@ class rrv_viewer : public QWidget
     Q_OBJECT
 
 public:
-    explicit rrv_viewer(QSharedPointer<RRVConfiguration> config = nullptr, QWidget *parent = nullptr);
+    explicit rrv_viewer(QSharedPointer<RRVConfiguration> config = nullptr, 
+                        QSharedPointer<Sdx::Ecef> receiverPosition = nullptr, 
+                        QSharedPointer<Sdx::Ecef> simulationPosition = nullptr,
+                        QWidget *parent = nullptr);
     ~rrv_viewer();
     void updateDataPanelValue(const QString& dataPanelValue);
 
 public slots:
     void dataReceived(const QString& data);
     void receiverStateChanges(bool state);
-    void observerDataReceived(Sdx::Ecef simulation_p, Sdx::Ecef receiver_p);
 
 signals:
     // Signals to update configuration  
@@ -32,10 +34,9 @@ signals:
     void observerConfigChanged();
     void receiverStateChanged();
 
-    void validECEF(const Sdx::Ecef& receiver_p);
-    
 private:
     Ui::rrv_viewer *ui;
     QSharedPointer<RRVConfiguration> config;
+    QSharedPointer<Sdx::Ecef> receiverPosition, simulationPosition;
 };
 

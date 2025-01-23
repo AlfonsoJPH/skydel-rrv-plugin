@@ -28,11 +28,8 @@ public:
   inline SkydelRuntimePositionObserver* createRuntimePositionObserver() override
   {
     positionLogger = new PositionLogger(m_skydelNotifier,
-                                        config);
+                                        config, receiverPosition, simulationPosition);
 
-    //Connect observers to view
-    connect(positionLogger, &PositionLogger::updatePosition, this, &Rrv_Plugin::observerDataReceived);
-    connect(this, &Rrv_Plugin::updatedReceiverPositionSignal, positionLogger, &PositionLogger::updateReceiverPosition);
 
     //Connect configuration to observers
     connect(this, &Rrv_Plugin::observerConfigChangedSignal, positionLogger, &PositionLogger::configChanged);
@@ -46,21 +43,14 @@ public slots:
     emit observerConfigChangedSignal();
   }
 
-  void observerDataReceived(Sdx::Ecef simulation_p, Sdx::Ecef receiver_p) { 
-    emit observerPosition(simulation_p, receiver_p); 
-  }
-  void updatedReceiverPosition(const Sdx::Ecef& receiver_p) { 
-    emit updatedReceiverPositionSignal(receiver_p); 
-  }
-
 signals: // bypass viewer copies using redirection of signals
   void observerConfigChangedSignal();
 
-  void observerPosition(Sdx::Ecef simulation_p, Sdx::Ecef receiver_p);
-  void updatedReceiverPositionSignal(const Sdx::Ecef& receiver_p);
 
 private:
   QSharedPointer<RRVConfiguration> config;
+  QSharedPointer<Sdx::Ecef> receiverPosition, simulationPosition;
+
   std::unique_ptr<SerialReceiver> receiver;
   rrv_viewer* view;
   SkydelNotifierInterface* m_skydelNotifier;

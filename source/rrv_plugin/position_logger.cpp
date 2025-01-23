@@ -7,12 +7,16 @@
 
 
 PositionLogger::PositionLogger(SkydelNotifierInterface* skydelNotifier,
-                               QSharedPointer<RRVConfiguration> config) :
+                               QSharedPointer<RRVConfiguration> config,
+                               QSharedPointer<Sdx::Ecef> receiverPosition,
+                                QSharedPointer<Sdx::Ecef> simulationPosition) :
                                m_skydelNotifier(skydelNotifier),
                                config(config),
                                m_simulationFile(config->simulationLogPath + QDir::separator() + "simulation_position_observer_output.csv"), 
                                m_receiverFile(config->receiverLogPath + QDir::separator() + "receiver_position_observer_output.csv")
 {
+  this->receiverPosition = receiverPosition;
+  this->simulationPosition = simulationPosition;
   if (config->simulationFileLogging)
   {
     if (!m_simulationFile.open(QIODevice::WriteOnly | QIODevice::Append | QIODevice::Text))
@@ -30,7 +34,6 @@ PositionLogger::PositionLogger(SkydelNotifierInterface* skydelNotifier,
   }
 
 
-  m_lastReceiverPosition = Sdx::Ecef(0,0,0);
   m_skydelNotifier->notify("PositionLogger initialized");
 }
 
@@ -40,16 +43,16 @@ PositionLogger::~PositionLogger()
 
 void PositionLogger::pushPosition(const TimedPosition& p)
 {
-  Sdx::Ecef simulation_p = Sdx::Ecef(p.position.x, p.position.y, p.position.z);
+  simulationPosition->x = p.position.x;
+  simulationPosition->y = p.position.y;
+  simulationPosition->z = p.position.z;
   
-  QString formatedSimulationPosition = QString::number(p.time) + ",Simulation," + toString(simulation_p);
-  QString formatedReceiverPosition = QString::number(p.time) + ",Receiver," + toString(m_lastReceiverPosition);
-  if ((p.time % 1000) == 0)
-  {
-  emit updatePosition(simulation_p, m_lastReceiverPosition);
-  }
+  Sdx::Ecef rPosition = *receiverPosition;
+  Sdx::Ecef sPosition = *simulationPosition;
+  QString formatedSimulationPosition = QString::number(p.time) + ",Simulation," + toString(sPosition);
+  QString formatedReceiverPosition = QString::number(p.time) + ",Receiver," + toString(rPosition);
 
-  if (config->simulationFileLogging)
+  if (config->simulationNetworkLogging)
   {
     QByteArray byteArray;
     byteArray.append(formatedSimulationPosition.toUtf8());
@@ -69,7 +72,7 @@ void PositionLogger::pushPosition(const TimedPosition& p)
       }
     }
     QTextStream stream(&m_simulationFile);
-    stream << formatedSimulationPosition;
+    stream << formatedSimulationPosition << "\n";
 
     if (stream.status() == QTextStream::WriteFailed)
     {
@@ -97,7 +100,7 @@ void PositionLogger::pushPosition(const TimedPosition& p)
       }
     }
     QTextStream stream(&m_receiverFile);
-    stream << formatedReceiverPosition;
+    stream << formatedReceiverPosition << "\n";
 
     if (stream.status() == QTextStream::WriteFailed)
     {

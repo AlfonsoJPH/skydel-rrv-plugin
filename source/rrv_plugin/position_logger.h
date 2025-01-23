@@ -18,20 +18,16 @@ class PositionLogger : public SkydelRuntimePositionObserver
   Q_OBJECT
 public:
   explicit PositionLogger(SkydelNotifierInterface* skydelNotifier,
-                          QSharedPointer<RRVConfiguration> config);// Called at simulation initialization phase
+                          QSharedPointer<RRVConfiguration> config,
+                          QSharedPointer<Sdx::Ecef> receiverPosition,
+                          QSharedPointer<Sdx::Ecef> simulationPosition);// Called at simulation initialization phase
   ~PositionLogger();                               // Called at simluation ending phase
   void pushPosition(
     const SkydelRuntimePositionObserver::TimedPosition&) override; // Called at simluation running phase at 1000 Hz
   void connectToView(QWidget*) override;
 
-signals:
-  void updatePosition(const Sdx::Ecef& simulator_p, const Sdx::Ecef& receiver_p);
 public slots:
-  void updateReceiverPosition(const Sdx::Ecef& receiver_p) { 
-    m_lastReceiverPosition.x = receiver_p.x; 
-    m_lastReceiverPosition.y = receiver_p.y;
-    m_lastReceiverPosition.z = receiver_p.z; 
-  }
+
 
   void configChanged() {
     m_receiverFile.setFileName(config->receiverLogPath + QDir::separator() + "receiver_position_observer_output.csv");
@@ -44,12 +40,13 @@ private:
 
   SkydelNotifierInterface* m_skydelNotifier;
   QSharedPointer<RRVConfiguration> config;
-
+  QSharedPointer<Sdx::Ecef> receiverPosition;
+  QSharedPointer<Sdx::Ecef> simulationPosition;
+  
   QFile m_simulationFile;
   QUdpSocket m_simulationSocket;
 
   QFile m_receiverFile;
   QUdpSocket m_receiverSocket;
   
-  Sdx::Ecef m_lastReceiverPosition;
 };
