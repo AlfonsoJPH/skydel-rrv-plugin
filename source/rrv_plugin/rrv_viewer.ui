@@ -144,7 +144,7 @@
             <item row="7" column="0">
              <widget class="QCheckBox" name="serialFileLogState">
               <property name="text">
-               <string>File log</string>
+               <string>File Logging</string>
               </property>
              </widget>
             </item>
@@ -277,7 +277,7 @@
             <item row="4" column="0">
              <widget class="QCheckBox" name="simulationFileLogState">
               <property name="text">
-               <string>File log</string>
+               <string>File Logging</string>
               </property>
              </widget>
             </item>
@@ -370,7 +370,7 @@
             <item row="4" column="0">
              <widget class="QCheckBox" name="receiverFileLogState">
               <property name="text">
-               <string>File log</string>
+               <string>File Logging</string>
               </property>
              </widget>
             </item>

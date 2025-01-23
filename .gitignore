@@ -61,3 +61,7 @@ bin_qmake/*
 bin/*
 tmp/*
 build/*
+
+# IDEs files
+*.config
+.vscode/*
