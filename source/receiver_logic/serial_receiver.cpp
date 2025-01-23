@@ -55,6 +55,5 @@ void SerialReceiver::receiverStateChanged() {
         disconnectReceiver();
     } else {
         connectReceiver();
-        emit receiverStateChanges(true);
     }
 }

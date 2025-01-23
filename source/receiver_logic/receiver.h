@@ -10,6 +10,8 @@
 class Receiver : public QObject {
     Q_OBJECT
 public:
+    QSharedPointer<RRVConfiguration> config;
+
     explicit Receiver(QObject* parent = nullptr, QSharedPointer<RRVConfiguration> config = nullptr);
 
     virtual ~Receiver() = default;
@@ -32,7 +34,6 @@ private:
     QFile fileLog;
     QUdpSocket udpSocketLogging;
     
-    QSharedPointer<RRVConfiguration> config;
 
     bool state;
 

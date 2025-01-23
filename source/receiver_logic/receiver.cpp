@@ -4,9 +4,10 @@
 #include <QTextStream>
 
 Receiver::Receiver(QObject* parent, QSharedPointer<RRVConfiguration> config) :
-                   QObject(parent), config(config), fileLog(config->receiverLogPath + QDir::separator() + "rrv.log")
+                   QObject(parent), fileLog(config->receiverLogPath + QDir::separator() + "rrv.log")
                   {
     state = false;
+    this->config = config;
 }
 
 // Dump logs messages into log file

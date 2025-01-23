@@ -6,13 +6,11 @@
 
 SkydelWidgets Rrv_Plugin::createUI()
 {
-    QString portName = QSerialPortInfo::availablePorts().isEmpty() ? "" : QSerialPortInfo::availablePorts()[0].portName();
+  QString portName = QSerialPortInfo::availablePorts().isEmpty() ? "" : QSerialPortInfo::availablePorts()[0].portName();
   
   config = QSharedPointer<RRVConfiguration>::create(false, portName, 9600, QDir::homePath(), false, QHostAddress("127.0.0.1"), 8080,
                                                     false, QDir::homePath(), false, QHostAddress("127.0.0.1"), 8081,
                                                     false, QDir::homePath(), false, QHostAddress("127.0.0.1"), 8081);
-
-
   //Create receiver
   receiver = std::make_unique<SerialReceiver>(this, config);
 
@@ -23,6 +21,7 @@ SkydelWidgets Rrv_Plugin::createUI()
   
   
   //Connect receiver to view
+  connect(view, &rrv_viewer::receiverStateChanged, receiver.get(), &SerialReceiver::receiverStateChanged);
   connect(receiver.get(), &Receiver::receiverStateChanges, view, &rrv_viewer::receiverStateChanges);
   connect(receiver.get(), &Receiver::dataReceived, view, &rrv_viewer::dataReceived);
 

@@ -8,11 +8,10 @@
 
 PositionLogger::PositionLogger(SkydelNotifierInterface* skydelNotifier,
                                QSharedPointer<RRVConfiguration> config) :
-                                m_skydelNotifier(skydelNotifier),
-                                config(config),
-                                m_simulationFile(config->simulationLogPath + QDir::separator() + "simulation_position_observer_output.csv"),
-
-                                m_receiverFile(config->receiverLogPath + QDir::separator() + "receiver_position_observer_output.csv")
+                               m_skydelNotifier(skydelNotifier),
+                               config(config),
+                               m_simulationFile(config->simulationLogPath + QDir::separator() + "simulation_position_observer_output.csv"), 
+                               m_receiverFile(config->receiverLogPath + QDir::separator() + "receiver_position_observer_output.csv")
 {
   if (config->simulationFileLogging)
   {
