@@ -1,5 +1,5 @@
 #include "rrv_viewer.h"
-#include "../receiver_logic/NMEAparser.h"
+#include "../receiver_logic/nmea_parser.h"
 #include "ecef.h"
 #include "lla.h"
 #include "ui_rrv_viewer.h"
