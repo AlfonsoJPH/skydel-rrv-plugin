@@ -1,11 +1,18 @@
 #pragma once
 
 #include "../rrv_plugin/rrv_configuration.h"
+#include "proprietary_parser.h"
+#include "ubx_m8_parser.h"
 #include <QDir>
 #include <QFile>
 #include <QObject>
 #include <QString>
 #include <QtNetwork/QUdpSocket>
+
+
+enum AvailableParsers {
+  UBX_M8
+};
 
 /**
  * # General Receiver class
@@ -25,6 +32,7 @@ public:
    * name, baud rate, and logging options.
    */
   QSharedPointer<RRVConfiguration> config;
+  QHash<AvailableReceiverConfigs, StateMessage> pendingConfigACKs; // AvailableReceiverConfigs, StateMessage // posible uint8_t,uint8_t
 
   /**
    * @brief Constructor for the Receiver class.
@@ -133,11 +141,27 @@ public:
     fileLog.setFileName(config->serialLogPath + QDir::separator() + "rrv.log");
   };
 
+
+
+  void setParser(const AvailableParsers &parser) {
+    switch (parser) {
+    case UBX_M8:
+      m_parser = new UbxM8Parser();
+      break;
+    } 
+
+  };
+
+  ProprietaryParser* getParser() { return m_parser; };
+
+  virtual int pushConfig(const QByteArray &config) = 0;
 private:
   QFile fileLog;               // File for logging
   QUdpSocket udpSocketLogging; // Socket for network logging
   bool state; // true if receiver is connected to this object, false if
               // disconnected
+  ProprietaryParser *m_parser;
+
 
   /**
    * ## Slots
@@ -158,9 +182,49 @@ public slots:
    */
   void configChanged() { setFileLogPath(config->serialLogPath); };
 
-  /**
-   * ## Signals for sending data received and receiver state changes
-   */
+  void setConfiguration() { //const std::vector<std::vector<int>> &config) {
+    std::vector<std::vector<int>> config = {{0}};
+    std::vector<QByteArray> configMessages;
+    // Gen config messages
+    bool validConfig[config.size()] = {true};
+    for(int i = 0; i < config.size(); ++i) {
+
+      if (config[i].empty()) {
+          continue;
+      }
+      QByteArray message = {};
+      // TODO
+      switch(i){
+        case AvailableReceiverConfigs::GNSS_CONSTELLATIONS:
+          message = m_parser->setGNSSConstellations(config[i]);
+          emit dataReceived("Message: " + QString::number(message[0]));
+          pendingConfigACKs[AvailableReceiverConfigs::GNSS_CONSTELLATIONS] = StateMessage::PENDING; // pending
+          break;
+        default:
+          message = {};
+          break;
+      }
+      QString messageStr;
+      emit dataReceived("Message size: " + QString::number(message.size()));
+      for (int i = 0; i < message.size(); i++) {
+        messageStr += QString::number(static_cast<unsigned char>(message.at(i)), 16).rightJustified(2, '0') + " ";
+      }
+        
+      emit dataReceived(messageStr);
+
+        if(message.size() > 0){
+            configMessages.push_back(message);
+        }
+    }
+    for (QByteArray message : configMessages) {
+      int works = pushConfig(message);
+      emit dataReceived(message + " " + QString::number(works)); 
+    }
+  };
+
+/**
+ * ## Signals for sending data received and receiver state changes
+ */
 signals:
   /**
    * Sends the data received from the receiver
@@ -180,4 +244,12 @@ signals:
    * @see disconnectReceiver
    */
   void receiverStateChanges(bool state);
+
+  /**
+   * Sends the new configuration of the receiver
+   * Triggers when the configuration is changed
+   *
+   * @see setConfiguration
+   */
+  void receiverConfigReply();
 };

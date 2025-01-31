@@ -74,6 +74,11 @@ public slots:
    */
   void receiverStateChanges(bool state);
 
+  void receiverConfigReply() 
+  {
+    updateDataPanelValue("Respuesta obtenida");
+  }
+
 signals:
   // Signals to update configuration
   /**
@@ -84,6 +89,8 @@ signals:
    * or reconnects the receiver.
    */
   void serialConfigChanged();
+
+  void receiverConfigChanged();
 
   /**
    * @brief Signal to notify the observer that configuration has changed

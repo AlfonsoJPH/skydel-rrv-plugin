@@ -26,10 +26,15 @@ SkydelWidgets Rrv_Plugin::createUI() {
   // Connect receiver to view
   connect(view, &rrv_viewer::receiverStateChanged, receiver.get(),
           &SerialReceiver::receiverStateChanged);
+  connect(view, &rrv_viewer::receiverConfigChanged, receiver.get(),
+          &Receiver::setConfiguration);
+  connect(receiver.get(), &Receiver::receiverConfigReply, view,
+          &rrv_viewer::receiverConfigReply);
   connect(receiver.get(), &Receiver::receiverStateChanges, view,
           &rrv_viewer::receiverStateChanges);
   connect(receiver.get(), &Receiver::dataReceived, view,
           &rrv_viewer::dataReceived);
+  
 
   // Move receiver to separate thread
   QThread *receiverThread = new QThread(this);

@@ -2,7 +2,13 @@
 
 #include <QString>
 #include <QByteArray>
-#include <list>
+#include <vector>
+enum AvailableReceiverConfigs {
+  GNSS_CONSTELLATIONS,
+  PLATFORM_MODEL,
+  UPDATE_RATE,
+  STARTUP_MODE
+};
 
 enum GNSSConstellations {
     GPS,
@@ -21,19 +27,28 @@ enum StartUpModes {
     HOT
 };
 
+enum StateMessage {
+  PENDING,
+  ACK,
+  NACK
+};
 
 class ProprietaryParser {
 public:
-        static QByteArray setGNSSConstellations(const std::list<GNSSConstellations> &constellations){};
-
-        static QByteArray setDynamicPlatformModel(const QString &model){};
         
-        static QByteArray setUpdateRate(const uint &rate){};
+        virtual QByteArray setGNSSConstellations(const std::vector<int> &constellations){ //returns 6
+          return QByteArray(1, 0x06);
+        }
 
-        static QByteArray setStartupMode(const StartUpModes &mode){};
+        virtual QByteArray setDynamicPlatformModel(const QString &model){};
+        
+        virtual QByteArray setUpdateRate(const uint &rate){};
 
-        static bool checkResponse(const QString &response){};
-};
+        virtual QByteArray setStartupMode(const StartUpModes &mode){};
+
+        virtual bool checkResponse(const QString &response, QHash<AvailableReceiverConfigs, StateMessage> &pendingConfigACKs){};
+};  
+
 
 
 

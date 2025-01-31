@@ -41,7 +41,7 @@
         </size>
        </property>
        <property name="currentIndex">
-        <number>0</number>
+        <number>1</number>
        </property>
        <widget class="QWidget" name="SerialConfig">
         <attribute name="title">
@@ -193,7 +193,21 @@
          </item>
         </layout>
        </widget>
-       <widget class="QWidget" name="tab">
+       <widget class="QWidget" name="ReceiverConfig">
+        <attribute name="title">
+         <string>Page</string>
+        </attribute>
+        <layout class="QVBoxLayout" name="verticalLayout_5">
+         <item>
+          <widget class="QPushButton" name="sendReceiverConfigButton">
+           <property name="text">
+            <string>Send config</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="Observer">
         <attribute name="title">
          <string>Observer Config</string>
         </attribute>

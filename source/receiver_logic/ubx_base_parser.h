@@ -1,11 +1,10 @@
 #pragma once
 
 #include <QString>
-#include "./propetary_parser.h"
+#include "./proprietary_parser.h"
 
 #define UBX_CONFIG 0x06
-#define ACK 0x05
-#define NACK 0x07
+#define UBX_ACK 0x05
 
 struct ubxMessage {
     uint8_t classID;
@@ -14,12 +13,14 @@ struct ubxMessage {
     uint8_t *payload;
     uint8_t checksum_a;
     uint8_t checksum_b;
-}
+};
 
 class UbxGenericParser : public ProprietaryParser
 {
 public:
-    static std::pair<uint8_t, uint8_t> generateChecksum(const QByteArray &message)
+    
+
+    std::pair<uint8_t, uint8_t> generateChecksum(const QByteArray &message)
     {
         uint8_t CK_A = 0, CK_B = 0;
         for (int i = 0; i < message.size(); i++)
@@ -30,7 +31,7 @@ public:
         return std::make_pair(CK_A, CK_B);
     }
 
-    static QByteArray getMessage(struct ubxMessage &message)
+    QByteArray getMessage(struct ubxMessage &message)
     {
         QByteArray msg;
         msg.append(0xB5);
@@ -44,23 +45,13 @@ public:
         {
             msg.append(message.payload[i]);
         }
-        msg.append(checksum_a);
-        msg.append(checksum_b);
+        std::pair<uint8_t, uint8_t> checksum = generateChecksum(msg);
+        msg.append(checksum.first);
+        msg.append(checksum.second);
         return msg;
     }
 
-    static bool checkResponse(const QString &response) override{
-        if (response.contains())
-        {
-            return false;
+        QByteArray setGNSSConstellations(const std::vector<int> &constellations)override{ //returns 6
+          return QByteArray(1, 0x08);
         }
-        else if (response.contains("ACK"))
-        {
-            return true;
-        }
-
-        return false;
-        
-    }
-    
 };

@@ -162,6 +162,12 @@ rrv_viewer::rrv_viewer(QSharedPointer<RRVConfiguration> config,
   connect(
       ui->simulationNetworkLogState, &QCheckBox::stateChanged, this,
       [this](int state) { this->config->simulationNetworkLogging = state; });
+
+  connect(ui->sendReceiverConfigButton, &QPushButton::clicked, this,
+      [this]() {
+      emit receiverConfigChanged();
+    }
+  );
 }
 
 rrv_viewer::~rrv_viewer() { delete ui; }

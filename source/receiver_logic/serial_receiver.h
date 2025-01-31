@@ -56,6 +56,12 @@ public:
    */
   QString getData() override;
 
+  int pushConfig(const QByteArray &config) override {
+    if (m_serialPort.isOpen()) {
+      return m_serialPort.write(config);
+    }
+    return -1;
+  }
 public slots:
   /**
    * @brief Triggers when data is available to read, logs the serial port data
@@ -76,6 +82,7 @@ public slots:
    * disconnects the receiver.
    */
   void receiverStateChanged() override;
+
 
 private:
   QSerialPort m_serialPort;
