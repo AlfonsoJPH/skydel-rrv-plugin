@@ -22,6 +22,9 @@ class Rrv_Plugin : public QObject,
 
 public:
   // SkydelCoreInterface
+  Rrv_Plugin() = default;
+  ~Rrv_Plugin();
+
   /**
    * @brief Sets the log path.
    * 
@@ -101,7 +104,8 @@ signals:
 private:
   QSharedPointer<RRVConfiguration> config; ///< Shared pointer to the configuration object.
   std::unique_ptr<SerialReceiver> receiver; ///< Unique pointer to the SerialReceiver.
-  rrv_viewer* view; ///< Pointer to the rrv_viewer.
+  rrv_viewer* view = nullptr; ///< Pointer to the rrv_viewer.
+  QThread *receiverThread = nullptr;
   SkydelNotifierInterface* m_skydelNotifier; ///< Pointer to the SkydelNotifierInterface.
   PositionLogger* positionLogger; ///< Pointer to the PositionLogger.
   QSharedPointer<Sdx::Ecef> receiverPosition; ///< Shared pointer to the receiver's ECEF position.

@@ -4,6 +4,14 @@
 #include <QSerialPortInfo>
 #include <QThread>
 
+Rrv_Plugin::~Rrv_Plugin() {
+  if (receiverThread) {
+    receiverThread->quit();
+    receiverThread->wait();
+    delete receiverThread;
+  }
+}
+
 SkydelWidgets Rrv_Plugin::createUI() {
   QString portName = QSerialPortInfo::availablePorts().isEmpty()
                          ? ""
@@ -32,7 +40,7 @@ SkydelWidgets Rrv_Plugin::createUI() {
           &rrv_viewer::dataReceived);
 
   // Move receiver to separate thread
-  QThread *receiverThread = new QThread(this);
+  receiverThread = new QThread(this);
   receiver->moveToThread(receiverThread);
   connect(receiverThread, &QThread::finished, receiver.get(),
           &SerialReceiver::disconnectReceiver);
