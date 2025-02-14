@@ -13,11 +13,11 @@
 #include <QString>
 #include <QtMath>
 
-rrv_viewer::rrv_viewer(QSharedPointer<RRVConfiguration> config,
+rrv_viewer::rrv_viewer(QSharedPointer<RRVConfiguration> pluginConfig,
                        QSharedPointer<Sdx::Ecef> receiverPosition,
                        QSharedPointer<Sdx::Ecef> simulationPosition,
                        QWidget *parent)
-    : QWidget(parent), config(config), ui(new Ui::rrv_viewer) {
+    : QWidget(parent), pluginConfig(pluginConfig), ui(new Ui::rrv_viewer) {
   this->receiverPosition = receiverPosition;
   this->simulationPosition = simulationPosition;
   ui->setupUi(this);
@@ -30,35 +30,39 @@ rrv_viewer::rrv_viewer(QSharedPointer<RRVConfiguration> config,
   foreach (const QSerialPortInfo &info, QSerialPortInfo::availablePorts()) {
     ui->portName->addItem(info.portName());
   }
-  ui->portName->setCurrentText(config->serialPortName);
-  ui->baudRate->setCurrentText(QString::number(config->baudRate));
+  ui->portName->setCurrentText(pluginConfig->serialPortName);
+  ui->baudRate->setCurrentText(QString::number(pluginConfig->baudRate));
 
-  ui->serialLogPath->setText(config->serialLogPath);
-  ui->serialFileLogState->setChecked(config->serialFileLogging);
+  ui->serialLogPath->setText(pluginConfig->serialLogPath);
+  ui->serialFileLogState->setChecked(pluginConfig->serialFileLogging);
 
   ui->serialLogAddressValue->setText(
-      config->serialNetworkLogAddress.toString());
-  ui->serialLogPortValue->setValue(config->serialNetworkLogPort);
-  ui->serialNetworkLogState->setChecked(config->serialNetworkLogging);
+      pluginConfig->serialNetworkLogAddress.toString());
+  ui->serialLogPortValue->setValue(pluginConfig->serialNetworkLogPort);
+  ui->serialNetworkLogState->setChecked(pluginConfig->serialNetworkLogging);
 
-  ui->simulationLogPath->setText(config->simulationLogPath);
-  ui->simulationFileLogState->setChecked(config->simulationFileLogging);
+  ui->simulationLogPath->setText(pluginConfig->simulationLogPath);
+  ui->simulationFileLogState->setChecked(pluginConfig->simulationFileLogging);
   ui->simulationLogAddressValue->setText(
-      config->simulationNetworkLogAddress.toString());
-  ui->simulationLogPortValue->setValue(config->simulationNetworkLogPort);
-  ui->simulationNetworkLogState->setChecked(config->simulationNetworkLogging);
+      pluginConfig->simulationNetworkLogAddress.toString());
+  ui->simulationLogPortValue->setValue(pluginConfig->simulationNetworkLogPort);
+  ui->simulationNetworkLogState->setChecked(pluginConfig->simulationNetworkLogging);
 
-  ui->receiverLogPath->setText(config->receiverLogPath);
-  ui->receiverFileLogState->setChecked(config->receiverFileLogging);
+  ui->receiverLogPath->setText(pluginConfig->receiverLogPath);
+  ui->receiverFileLogState->setChecked(pluginConfig->receiverFileLogging);
   ui->receiverLogAddressValue->setText(
-      config->receiverNetworkLogAddress.toString());
-  ui->receiverLogPortValue->setValue(config->receiverNetworkLogPort);
-  ui->receiverNetworkLogState->setChecked(config->receiverNetworkLogging);
+      pluginConfig->receiverNetworkLogAddress.toString());
+  ui->receiverLogPortValue->setValue(pluginConfig->receiverNetworkLogPort);
+  ui->receiverNetworkLogState->setChecked(pluginConfig->receiverNetworkLogging);
 
   ui->viewData->setReadOnly(true);
 
+
+  // ui->platformModelComboBox->addItems
+
+  // Connect signals of the interface
   connect(ui->portName, &QComboBox::currentTextChanged, this,
-          [this](const QString &text) { this->config->serialPortName = text; });
+          [this](const QString &text) { this->pluginConfig->serialPortName = text; });
 
   ui->baudRate->addItem("Other");
   connect(ui->baudRate, &QComboBox::currentTextChanged, this,
@@ -79,34 +83,34 @@ rrv_viewer::rrv_viewer(QSharedPointer<RRVConfiguration> config,
               value = text.toInt();
             }
 
-            this->config->baudRate = value;
+            this->pluginConfig->baudRate = value;
           });
   connect(ui->serialLogPathButton, &QPushButton::clicked, this, [this]() {
     QString path = QFileDialog::getExistingDirectory(
         this, tr("Open Directory"), QDir::homePath(),
         QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
     ui->serialLogPath->setText(path);
-    this->config->serialLogPath = path;
+    this->pluginConfig->serialLogPath = path;
     emit serialConfigChanged();
   });
   connect(ui->serialLogPath, &QLineEdit::textChanged, this,
           [this](const QString &text) {
-            this->config->serialLogPath = text;
+            this->pluginConfig->serialLogPath = text;
             emit serialConfigChanged();
           });
   connect(ui->serialFileLogState, &QCheckBox::stateChanged, this,
-          [this](int state) { this->config->serialFileLogging = state; });
+          [this](int state) { this->pluginConfig->serialFileLogging = state; });
 
   connect(ui->serialLogAddressValue, &QLineEdit::textChanged, this,
           [this](const QString &text) {
-            this->config->serialNetworkLogAddress = QHostAddress(text);
+            this->pluginConfig->serialNetworkLogAddress = QHostAddress(text);
           });
   connect(ui->serialLogPortValue, QOverload<int>::of(&QSpinBox::valueChanged),
           this,
-          [this](int value) { this->config->serialNetworkLogPort = value; });
+          [this](int value) { this->pluginConfig->serialNetworkLogPort = value; });
 
   connect(ui->serialNetworkLogState, &QCheckBox::stateChanged, this,
-          [this](int state) { this->config->serialNetworkLogging = state; });
+          [this](int state) { this->pluginConfig->serialNetworkLogging = state; });
 
   connect(ui->receiverState, &QPushButton::clicked, this,
           [this]() { emit receiverStateChanged(); });
@@ -116,58 +120,261 @@ rrv_viewer::rrv_viewer(QSharedPointer<RRVConfiguration> config,
         this, tr("Open Directory"), QDir::homePath(),
         QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
     ui->receiverLogPath->setText(path);
-    this->config->receiverLogPath = path;
+    this->pluginConfig->receiverLogPath = path;
     emit observerConfigChanged();
   });
   connect(ui->receiverLogPath, &QLineEdit::textChanged, this,
           [this](const QString &text) {
-            this->config->receiverLogPath = text;
+            this->pluginConfig->receiverLogPath = text;
             emit observerConfigChanged();
           });
   connect(ui->receiverFileLogState, &QCheckBox::stateChanged, this,
-          [this](int state) { this->config->receiverFileLogging = state; });
+          [this](int state) { this->pluginConfig->receiverFileLogging = state; });
   connect(ui->receiverLogAddressValue, &QLineEdit::textChanged, this,
           [this](const QString &text) {
-            this->config->receiverNetworkLogAddress = QHostAddress(text);
+            this->pluginConfig->receiverNetworkLogAddress = QHostAddress(text);
           });
   connect(ui->receiverLogPortValue, QOverload<int>::of(&QSpinBox::valueChanged),
           this,
-          [this](int value) { this->config->receiverNetworkLogPort = value; });
+          [this](int value) { this->pluginConfig->receiverNetworkLogPort = value; });
   connect(ui->receiverNetworkLogState, &QCheckBox::stateChanged, this,
-          [this](int state) { this->config->receiverNetworkLogging = state; });
+          [this](int state) { this->pluginConfig->receiverNetworkLogging = state; });
 
   connect(ui->simulationLogPathButton, &QPushButton::clicked, this, [this]() {
     QString path = QFileDialog::getExistingDirectory(
         this, tr("Open Directory"), QDir::homePath(),
         QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
     ui->simulationLogPath->setText(path);
-    this->config->simulationLogPath = path;
+    this->pluginConfig->simulationLogPath = path;
     emit observerConfigChanged();
   });
   connect(ui->simulationLogPath, &QLineEdit::textChanged, this,
           [this](const QString &text) {
-            this->config->simulationLogPath = text;
+            this->pluginConfig->simulationLogPath = text;
             emit observerConfigChanged();
           });
   connect(ui->simulationFileLogState, &QCheckBox::stateChanged, this,
-          [this](int state) { this->config->simulationFileLogging = state; });
+          [this](int state) { this->pluginConfig->simulationFileLogging = state; });
   connect(ui->simulationLogAddressValue, &QLineEdit::textChanged, this,
           [this](const QString &text) {
-            this->config->simulationNetworkLogAddress = QHostAddress(text);
+            this->pluginConfig->simulationNetworkLogAddress = QHostAddress(text);
           });
   connect(ui->simulationLogPortValue,
           QOverload<int>::of(&QSpinBox::valueChanged), this, [this](int value) {
-            this->config->simulationNetworkLogPort = value;
+            this->pluginConfig->simulationNetworkLogPort = value;
           });
   connect(
       ui->simulationNetworkLogState, &QCheckBox::stateChanged, this,
-      [this](int state) { this->config->simulationNetworkLogging = state; });
+      [this](int state) { this->pluginConfig->simulationNetworkLogging = state; });
 
+  // Receiver messages configuration
   connect(ui->sendReceiverConfigButton, &QPushButton::clicked, this,
       [this]() {
-      emit receiverConfigChanged();
+      emit receiverConfigChanged(this->receiverConfig);
     }
   );
+
+  connect(ui->gpsConstellationCheckBox, &QCheckBox::stateChanged, this,
+    [this](int state) {
+      this->receiverConfig.GNSSConstellationChanged = true;
+      if (state) {
+        if(ui->gpsConstellationSignal1->isChecked()) {
+          this->receiverConfig.GNSSConstellations[0] = 1;
+        } else if(ui->gpsConstellationSignal2->isChecked()) {
+          this->receiverConfig.GNSSConstellations[0] = 2;
+        }
+      } else {
+        this->receiverConfig.GNSSConstellations[0] = -1;
+      }
+    }
+  );
+
+  connect(ui->gpsConstellationSignal1, &QCheckBox::toggled, this,
+    [this](int state) {
+      this->receiverConfig.GNSSConstellationChanged = true;
+      if (ui->gpsConstellationCheckBox){
+        if (state) {
+          this->receiverConfig.GNSSConstellations[0] = 1;
+        } else {
+          this->receiverConfig.GNSSConstellations[0] = 2;
+        }
+      }
+    }
+  );
+
+  connect(ui->sbasConstellationCheckBox, &QCheckBox::stateChanged, this,
+    [this](int state) {
+      this->receiverConfig.GNSSConstellationChanged = true;
+      if (state) {
+          this->receiverConfig.GNSSConstellations[1] = 1;
+      } else {
+        this->receiverConfig.GNSSConstellations[1] = -1;
+      }
+    }
+  );
+
+  connect(ui->galileoConstellationCheckBox, &QCheckBox::stateChanged, this,
+    [this](int state) {
+      this->receiverConfig.GNSSConstellationChanged = true;
+      if (state) {
+        if(ui->galileoConstellationSignal1->isChecked()) {
+          this->receiverConfig.GNSSConstellations[2] = 1;
+        } else if(ui->galileoConstellationSignal2->isChecked()) {
+          this->receiverConfig.GNSSConstellations[2] = 2;
+        }
+      } else {
+        this->receiverConfig.GNSSConstellations[2] = -1;
+      }
+    }
+  );
+
+  connect(ui->galileoConstellationSignal1, &QCheckBox::toggled, this,
+    [this](int state) {
+      this->receiverConfig.GNSSConstellationChanged = true;
+      if (ui->galileoConstellationCheckBox){
+        if (state) {
+          this->receiverConfig.GNSSConstellations[2] = 1;
+        } else {
+          this->receiverConfig.GNSSConstellations[2] = 2;
+        }
+      }
+    }
+  );
+
+  connect(ui->beidouConstellationCheckBox, &QCheckBox::stateChanged, this,
+    [this](int state) {
+      this->receiverConfig.GNSSConstellationChanged = true;
+      if (state) {
+        if(ui->beidouConstellationSignal1->isChecked()) {
+          this->receiverConfig.GNSSConstellations[3] = 1;
+        } else if(ui->beidouConstellationSignal2->isChecked()) {
+          this->receiverConfig.GNSSConstellations[3] = 2;
+        }
+      } else {
+        this->receiverConfig.GNSSConstellations[3] = -1;
+      }
+    }
+  );
+
+  connect(ui->beidouConstellationSignal1, &QCheckBox::toggled, this,
+    [this](int state) {
+      this->receiverConfig.GNSSConstellationChanged = true;
+      if (ui->beidouConstellationCheckBox){
+        if (state) {
+          this->receiverConfig.GNSSConstellations[3] = 1;
+        } else {
+          this->receiverConfig.GNSSConstellations[3] = 2;
+        }
+      }
+    }
+  );
+
+  connect(ui->qzssConstellationCheckBox, &QCheckBox::stateChanged, this,
+    [this](int state) {
+      this->receiverConfig.GNSSConstellationChanged = true;
+      if (state) {
+        if(ui->qzssConstellationSignal1->isChecked()) {
+          this->receiverConfig.GNSSConstellations[4] = 1;
+        } else if(ui->qzssConstellationSignal2->isChecked()) {
+          this->receiverConfig.GNSSConstellations[4] = 2;
+        }
+      } else {
+        this->receiverConfig.GNSSConstellations[4] = -1;
+      }
+    }
+  );
+
+  connect(ui->qzssConstellationSignal1, &QCheckBox::toggled, this,
+    [this](int state) {
+      this->receiverConfig.GNSSConstellationChanged = true;
+      if (ui->qzssConstellationCheckBox){
+        if (state) {
+          this->receiverConfig.GNSSConstellations[4] = 1;
+        } else {
+          this->receiverConfig.GNSSConstellations[4] = 2;
+        }
+      }
+    }
+  );
+
+  connect(ui->glonassConstellationCheckBox, &QCheckBox::stateChanged, this,
+    [this](int state) {
+      this->receiverConfig.GNSSConstellationChanged = true;
+      if (state) {
+        if(ui->glonassConstellationSignal1->isChecked()) {
+          this->receiverConfig.GNSSConstellations[5] = 1;
+        } else if(ui->glonassConstellationSignal2->isChecked()) {
+          this->receiverConfig.GNSSConstellations[5] = 2;
+        }
+      } else {
+        this->receiverConfig.GNSSConstellations[5] = -1;
+      }
+    }
+  );
+
+  connect(ui->glonassConstellationSignal1, &QCheckBox::toggled, this,
+    [this](int state) {
+      this->receiverConfig.GNSSConstellationChanged = true;
+      if (ui->glonassConstellationCheckBox){
+        if (state) {
+          this->receiverConfig.GNSSConstellations[5] = 1;
+        } else {
+          this->receiverConfig.GNSSConstellations[5] = 2;
+        }
+      }
+    }
+  );
+
+  connect(ui->navicConstellationCheckBox, &QCheckBox::stateChanged, this,
+    [this](int state) {
+      this->receiverConfig.GNSSConstellationChanged = true;
+      if (state) {
+        this->receiverConfig.GNSSConstellations[6] = 1;
+      } else {
+        this->receiverConfig.GNSSConstellations[6] = -1;
+      }
+    }
+  );
+
+  connect(ui->baudRateValue, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this,
+    [this](double value) {
+      this->receiverConfig.updateRateChanged = true;
+      this->receiverConfig.updateRate = value;
+    }
+  );
+
+  connect(ui->platformModelComboBox, &QComboBox::currentTextChanged, this,
+    [this](const QString &text) {
+      this->receiverConfig.platformModelChanged = true;
+      this->receiverConfig.platformModel = text;
+    }
+  );
+
+  connect(ui->coldStartButton, &QPushButton::clicked, this,
+    [this]() {
+      this->receiverConfig.startupModeChanged = true;
+      this->receiverConfig.startupMode = COLD;
+  });
+
+  connect(ui->warmStartButton, &QPushButton::clicked, this,
+    [this]() {
+      this->receiverConfig.startupModeChanged = true;
+      this->receiverConfig.startupMode = WARM;
+  });
+
+  connect(ui->hotStartButton, &QPushButton::clicked, this,
+    [this]() {
+      this->receiverConfig.startupModeChanged = true;
+      this->receiverConfig.startupMode = HOT;
+  });
+
+  connect(ui->portName, &QComboBox::currentTextChanged, this,
+    [this](const QString &text) {
+      this->receiverConfig.platformModelChanged = true;
+      this->receiverConfig.platformModel = text;
+    });
+
+
 }
 
 rrv_viewer::~rrv_viewer() { delete ui; }

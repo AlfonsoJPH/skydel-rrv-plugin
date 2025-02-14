@@ -28,7 +28,7 @@ public:
    * @param path The path where the log file will be saved.
    */
   inline void setLogPath(const QString &path) override {
-    config->serialLogPath = path;
+    pluginConfig->serialLogPath = path;
   }
 
   /**
@@ -82,7 +82,7 @@ public:
    */
   inline SkydelRuntimePositionObserver *
   createRuntimePositionObserver() override {
-    positionLogger = new PositionLogger(m_skydelNotifier, config,
+    positionLogger = new PositionLogger(m_skydelNotifier, pluginConfig,
                                         receiverPosition, simulationPosition);
 
     connect(this, &Rrv_Plugin::observerConfigChangedSignal, positionLogger, 
@@ -99,7 +99,7 @@ signals:
   void observerConfigChangedSignal();
 
 private:
-  QSharedPointer<RRVConfiguration> config; ///< Shared pointer to the configuration object.
+  QSharedPointer<RRVConfiguration> pluginConfig; ///< Shared pointer to the configuration object.
   std::unique_ptr<SerialReceiver> receiver; ///< Unique pointer to the SerialReceiver.
   rrv_viewer* view; ///< Pointer to the rrv_viewer.
   SkydelNotifierInterface* m_skydelNotifier; ///< Pointer to the SkydelNotifierInterface.

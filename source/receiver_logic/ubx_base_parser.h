@@ -18,12 +18,10 @@ struct ubxMessage {
 class UbxGenericParser : public ProprietaryParser
 {
 public:
-    
-
     std::pair<uint8_t, uint8_t> generateChecksum(const QByteArray &message)
     {
         uint8_t CK_A = 0, CK_B = 0;
-        for (int i = 0; i < message.size(); i++)
+        for (int i = 2; i < message.size(); i++) // Start from 2 to skip 0xB5 and 0x62
         {
             CK_A = CK_A + static_cast<uint8_t>(message[i]);
             CK_B = CK_B + CK_A;
@@ -51,7 +49,7 @@ public:
         return msg;
     }
 
-        QByteArray setGNSSConstellations(const std::vector<int> &constellations)override{ //returns 6
-          return QByteArray(1, 0x08);
-        }
+        QByteArray setGNSSConstellations(const std::vector<int> &constellations) override{}
+        QByteArray setDynamicPlatformModel(const PlatformModels &model) override{}
+        QByteArray setUpdateRate(const uint16_t &rate) override{}
 };

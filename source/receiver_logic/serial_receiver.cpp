@@ -45,9 +45,9 @@ QString SerialReceiver::getData() {
   }
   // show number of expected messages
   emit dataReceived(QString("Expected: %1").arg(expected));
-  // if(expected > 0){
-  //   if(getParser()->checkResponse(data, pendingConfigACKs)) emit receiverConfigReply();
-  // }
+  if(expected > 0){
+    if(getParser()->checkResponse(data, pendingConfigACKs) emit receiverConfigReply();
+  }
     
     return data;
 }
@@ -76,6 +76,7 @@ void SerialReceiver::receiverStateChanged() {
   } else {
     connectReceiver();
   }
+  emit dataReceived(QString("Receiver state changed"));
 }
 
 

@@ -182,40 +182,21 @@ public slots:
    */
   void configChanged() { setFileLogPath(config->serialLogPath); };
 
-  void setConfiguration() { //const std::vector<std::vector<int>> &config) {
-    std::vector<std::vector<int>> config = {{0}};
+  void setConfiguration(receiverConfiguration config) {
     std::vector<QByteArray> configMessages;
     // Gen config messages
     bool validConfig[config.size()] = {true};
-    for(int i = 0; i < config.size(); ++i) {
 
-      if (config[i].empty()) {
-          continue;
-      }
-      QByteArray message = {};
-      // TODO
-      switch(i){
-        case AvailableReceiverConfigs::GNSS_CONSTELLATIONS:
-          message = m_parser->setGNSSConstellations(config[i]);
-          emit dataReceived("Message: " + QString::number(message[0]));
-          pendingConfigACKs[AvailableReceiverConfigs::GNSS_CONSTELLATIONS] = StateMessage::PENDING; // pending
-          break;
-        default:
-          message = {};
-          break;
-      }
-      QString messageStr;
-      emit dataReceived("Message size: " + QString::number(message.size()));
-      for (int i = 0; i < message.size(); i++) {
-        messageStr += QString::number(static_cast<unsigned char>(message.at(i)), 16).rightJustified(2, '0') + " ";
-      }
-        
-      emit dataReceived(messageStr);
-
-        if(message.size() > 0){
-            configMessages.push_back(message);
-        }
+    if(config.GNSSConstellationChanged){
+      QByteArray message = m_parser->setGNSSConstellations(config.GNSSConstellations);
+      //message is a hex byte array, i want to transform it to a string that shows each pair of hex values
+      QString hexMessage = message.toHex();
+      emit dataReceived("Message: " + hexMessage);
+      pendingConfigACKs[AvailableReceiverConfigs::GNSS_CONSTELLATIONS] = StateMessage::PENDING; // pending
+      configMessages.push_back(message);
     }
+    
+
     for (QByteArray message : configMessages) {
       int works = pushConfig(message);
       emit dataReceived(message + " " + QString::number(works)); 

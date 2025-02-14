@@ -32,7 +32,7 @@ public:
    * @param simulationPosition The shared pointer to the simulation's ECEF position
    * @param parent The parent QWidget
    */
-  explicit rrv_viewer(QSharedPointer<RRVConfiguration> config = nullptr,
+  explicit rrv_viewer(QSharedPointer<RRVConfiguration> pluginConfig = nullptr,
                       QSharedPointer<Sdx::Ecef> receiverPosition = nullptr,
                       QSharedPointer<Sdx::Ecef> simulationPosition = nullptr,
                       QWidget *parent = nullptr);
@@ -90,7 +90,7 @@ signals:
    */
   void serialConfigChanged();
 
-  void receiverConfigChanged();
+  void receiverConfigChanged(receiverConfiguration config);
 
   /**
    * @brief Signal to notify the observer that configuration has changed
@@ -110,6 +110,7 @@ signals:
 
 private:
   Ui::rrv_viewer *ui;
-  QSharedPointer<RRVConfiguration> config;
+  QSharedPointer<RRVConfiguration> pluginConfig;
   QSharedPointer<Sdx::Ecef> receiverPosition, simulationPosition;
+  receiverConfiguration receiverConfig;
 };
