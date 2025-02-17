@@ -57,9 +57,6 @@ rrv_viewer::rrv_viewer(QSharedPointer<RRVConfiguration> pluginConfig,
 
   ui->viewData->setReadOnly(true);
 
-
-  // ui->platformModelComboBox->addItems
-
   // Connect signals of the interface
   connect(ui->portName, &QComboBox::currentTextChanged, this,
           [this](const QString &text) { this->pluginConfig->serialPortName = text; });
@@ -70,6 +67,9 @@ rrv_viewer::rrv_viewer(QSharedPointer<RRVConfiguration> pluginConfig,
             int value = 9600;
             if (text == "Other") {
               bool ok = false;
+              foreach (const QSerialPortInfo &info, QSerialPortInfo::availablePorts()) {
+                ui->portName->addItem(info.portName());
+              }
               value =
                   QInputDialog::getInt(this, tr("Specify Baud Rate"),
                                        tr("Baud Rate:"), 0, 0, 1000000, 1, &ok);
@@ -171,6 +171,11 @@ rrv_viewer::rrv_viewer(QSharedPointer<RRVConfiguration> pluginConfig,
   connect(ui->sendReceiverConfigButton, &QPushButton::clicked, this,
       [this]() {
       emit receiverConfigChanged(this->receiverConfig);
+      receiverConfig.GNSSConstellationChanged = false;
+      receiverConfig.updateRateChanged = false;
+      receiverConfig.platformModelChanged = false;
+      receiverConfig.startupModeChanged = false;
+
     }
   );
 
@@ -269,30 +274,13 @@ rrv_viewer::rrv_viewer(QSharedPointer<RRVConfiguration> pluginConfig,
     }
   );
 
-  connect(ui->qzssConstellationCheckBox, &QCheckBox::stateChanged, this,
+  connect(ui->imesConstellationCheckBox, &QCheckBox::stateChanged, this,
     [this](int state) {
       this->receiverConfig.GNSSConstellationChanged = true;
       if (state) {
-        if(ui->qzssConstellationSignal1->isChecked()) {
           this->receiverConfig.GNSSConstellations[4] = 1;
-        } else if(ui->qzssConstellationSignal2->isChecked()) {
-          this->receiverConfig.GNSSConstellations[4] = 2;
-        }
       } else {
         this->receiverConfig.GNSSConstellations[4] = -1;
-      }
-    }
-  );
-
-  connect(ui->qzssConstellationSignal1, &QCheckBox::toggled, this,
-    [this](int state) {
-      this->receiverConfig.GNSSConstellationChanged = true;
-      if (ui->qzssConstellationCheckBox){
-        if (state) {
-          this->receiverConfig.GNSSConstellations[4] = 1;
-        } else {
-          this->receiverConfig.GNSSConstellations[4] = 2;
-        }
       }
     }
   );
@@ -324,14 +312,40 @@ rrv_viewer::rrv_viewer(QSharedPointer<RRVConfiguration> pluginConfig,
       }
     }
   );
+  connect(ui->qzssConstellationCheckBox, &QCheckBox::stateChanged, this,
+    [this](int state) {
+      this->receiverConfig.GNSSConstellationChanged = true;
+      if (state) {
+        if(ui->qzssConstellationSignal1->isChecked()) {
+          this->receiverConfig.GNSSConstellations[6] = 1;
+        } else if(ui->qzssConstellationSignal2->isChecked()) {
+          this->receiverConfig.GNSSConstellations[6] = 2;
+        }
+      } else {
+        this->receiverConfig.GNSSConstellations[6] = -1;
+      }
+    }
+  );
 
+  connect(ui->qzssConstellationSignal1, &QCheckBox::toggled, this,
+    [this](int state) {
+      this->receiverConfig.GNSSConstellationChanged = true;
+      if (ui->qzssConstellationCheckBox){
+        if (state) {
+          this->receiverConfig.GNSSConstellations[6] = 1;
+        } else {
+          this->receiverConfig.GNSSConstellations[6] = 2;
+        }
+      }
+    }
+  );
   connect(ui->navicConstellationCheckBox, &QCheckBox::stateChanged, this,
     [this](int state) {
       this->receiverConfig.GNSSConstellationChanged = true;
       if (state) {
-        this->receiverConfig.GNSSConstellations[6] = 1;
+        this->receiverConfig.GNSSConstellations[7] = 1;
       } else {
-        this->receiverConfig.GNSSConstellations[6] = -1;
+        this->receiverConfig.GNSSConstellations[7] = -1;
       }
     }
   );
@@ -508,5 +522,12 @@ void rrv_viewer::dataReceived(const QString &data) {
     }
   } catch (const std::exception &e) {
     std::cerr << e.what() << '\n';
+  }
+}
+void rrv_viewer::on_reloadPortsButton_clicked()
+{
+  ui->portName->clear();
+  foreach (const QSerialPortInfo &info, QSerialPortInfo::availablePorts()) {
+    ui->portName->addItem(info.portName());
   }
 }

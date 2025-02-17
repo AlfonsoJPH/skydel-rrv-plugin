@@ -18,9 +18,9 @@ enum GNSSConstellations {
     SBAS,
     GALILEO,
     BEIDOU,
+    IMES,
     QZSS,
     GLONASS,
-    IMES,
     NAVIC
 };
 

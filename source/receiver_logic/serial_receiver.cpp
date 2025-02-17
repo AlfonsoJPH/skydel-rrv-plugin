@@ -36,17 +36,17 @@ void SerialReceiver::disconnectReceiver() {
 QString SerialReceiver::getData() {
   QString data = QString::fromUtf8(m_serialPort.readAll());
 
-
   int expected = 0;
   for (auto key : pendingConfigACKs.keys()) {
     if (pendingConfigACKs[key] == StateMessage::PENDING) {
       expected++;
     }
   }
+
   // show number of expected messages
   emit dataReceived(QString("Expected: %1").arg(expected));
   if(expected > 0){
-    if(getParser()->checkResponse(data, pendingConfigACKs) emit receiverConfigReply();
+    if(getParser()->checkResponse(data, pendingConfigACKs)) emit receiverConfigReply();
   }
     
     return data;

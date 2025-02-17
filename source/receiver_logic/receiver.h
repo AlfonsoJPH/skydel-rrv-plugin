@@ -148,7 +148,7 @@ public:
     case UBX_M8:
       m_parser = new UbxM8Parser();
       break;
-    } 
+    }
 
   };
 
@@ -183,24 +183,48 @@ public slots:
   void configChanged() { setFileLogPath(config->serialLogPath); };
 
   void setConfiguration(receiverConfiguration config) {
+    bool needsReconnect = false;
     std::vector<QByteArray> configMessages;
     // Gen config messages
     bool validConfig[config.size()] = {true};
 
     if(config.GNSSConstellationChanged){
       QByteArray message = m_parser->setGNSSConstellations(config.GNSSConstellations);
-      //message is a hex byte array, i want to transform it to a string that shows each pair of hex values
-      QString hexMessage = message.toHex();
-      emit dataReceived("Message: " + hexMessage);
       pendingConfigACKs[AvailableReceiverConfigs::GNSS_CONSTELLATIONS] = StateMessage::PENDING; // pending
       configMessages.push_back(message);
     }
-    
+    // if(config.platformModelChanged){
+    //   QByteArray message = m_parser->setDynamicPlatformModel(config.platformModel);
+    //   QString hexMessage = message.toHex();
+    //   emit dataReceived("Message: " + hexMessage);
+    //   pendingConfigACKs[AvailableReceiverConfigs::PLATFORM_MODEL] = StateMessage::PENDING; // pending
+    //   configMessages.push_back(message);
+    //   config.platformModelChanged = false;
+    // }
+
+    if(config.updateRateChanged){
+      QByteArray message = m_parser->setUpdateRate(config.updateRate);
+      QString hexMessage = message.toHex();
+      emit dataReceived("Message: " + hexMessage);
+      pendingConfigACKs[AvailableReceiverConfigs::UPDATE_RATE] = StateMessage::PENDING; // pending
+      configMessages.push_back(message);
+    }
+
+    if(config.startupModeChanged){
+      QByteArray message = m_parser->setStartupMode(config.startupMode);
+      QString hexMessage = message.toHex();
+      emit dataReceived("Message: " + hexMessage);
+      pendingConfigACKs[AvailableReceiverConfigs::STARTUP_MODE] = StateMessage::PENDING; // pending
+      configMessages.push_back(message);
+      needsReconnect = true;
+    }
 
     for (QByteArray message : configMessages) {
       int works = pushConfig(message);
-      emit dataReceived(message + " " + QString::number(works)); 
+      emit dataReceived(message + " " + QString::number(works));
     }
+    if (needsReconnect) connectReceiver();
+
   };
 
 /**

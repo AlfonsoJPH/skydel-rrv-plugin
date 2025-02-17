@@ -108,6 +108,9 @@ signals:
    */
   void receiverStateChanged();
 
+private slots:
+  void on_reloadPortsButton_clicked();
+
 private:
   Ui::rrv_viewer *ui;
   QSharedPointer<RRVConfiguration> pluginConfig;

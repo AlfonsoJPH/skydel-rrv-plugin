@@ -35,8 +35,6 @@ public:
             uint8_t repeatBlock[8] = {};
             
             // only readable
-            repeatBlock[1] = 0x08;
-            repeatBlock[2] = 0x10;
             repeatBlock[3] = 0x00;
 
             // flags
@@ -45,11 +43,11 @@ public:
 
             if (constellations.size() > i && constellations[i] >= 0)
             {
-                repeatBlock[6] = 0x01; // Enable
+                repeatBlock[4] = 0x01; // Enable
             }
             else
             {
-                repeatBlock[6] = 0x00; // Disable
+                repeatBlock[4] = 0x00; // Disable
             }
 
 
@@ -57,53 +55,67 @@ public:
             {
                 case GNSSConstellations::GPS:
                     repeatBlock[0] = 0x00; // Type
-                    repeatBlock[4] = 0x01; // L1C/A
+                    repeatBlock[1] = 0x08; // Min Channels
+                    repeatBlock[2] = 0x10; // Max Channels
+                    repeatBlock[6] = 0x01; // L1C/A
                     if (constellations.size() > i && constellations[i] > 0 && constellations[i] == 2) {
-                            repeatBlock[4] = 0x10; // L2C
+                            repeatBlock[6] = 0x10; // L2C
                     }
 
                     hasMajorGNSS = true;
                     break;
                 case GNSSConstellations::SBAS:
                     repeatBlock[0] = 0x01; // Type
-                    repeatBlock[4] = 0x01; // L1C/A
+                    repeatBlock[1] = 0x01; // Min Channels
+                    repeatBlock[2] = 0x03; // Max Channels
+                    repeatBlock[6] = 0x01; // L1C/A
                     break;
                 case GNSSConstellations::GALILEO:
                     repeatBlock[0] = 0x02; // Type
-                    repeatBlock[4] = 0x01; // E1
+                    repeatBlock[1] = 0x04; // Min Channels
+                    repeatBlock[2] = 0x08; // Max Channels
+                    repeatBlock[6] = 0x01; // E1
                     if (constellations.size() > i && constellations[i] > 0 && constellations[i] == 2) {
-                            repeatBlock[4] = 0x20; // E5b
+                            repeatBlock[6] = 0x20; // E5b
                     }
                     hasMajorGNSS = true;
                     break;
                 case GNSSConstellations::BEIDOU:
                     repeatBlock[0] = 0x03; // Type
-                    repeatBlock[4] = 0x01; // B1
+                    repeatBlock[1] = 0x08; // Min Channels
+                    repeatBlock[2] = 0x10; // Max Channels
+                    repeatBlock[6] = 0x01; // B1
                     if (constellations.size() > i && constellations[i] > 0 && constellations[i] == 2) {
-                            repeatBlock[4] = 0x10; // B2
+                            repeatBlock[6] = 0x10; // B2
                     }
                     hasMajorGNSS = true;
                     break;
                 case GNSSConstellations::IMES:
                     repeatBlock[0] = 0x04; // gnssId 
-                    repeatBlock[4] = 0x01; // L1
+                    repeatBlock[1] = 0x00; // Min Channels
+                    repeatBlock[2] = 0x08; // Max Channels
+                    repeatBlock[6] = 0x03; // L1 (According to UBX M8 0x01)
                     break;
                 case GNSSConstellations::QZSS:
                     repeatBlock[0] = 0x05; // gnssId 
-                    repeatBlock[4] = 0x01; // L1C/A
+                    repeatBlock[1] = 0x00; // Min Channels
+                    repeatBlock[2] = 0x03; // Max Channels
+                    repeatBlock[6] = 0x05; // L1C/A (According to UBX M8 0x01) 
                     if (constellations.size() > i && constellations[i] > 0){
                         if (constellations[i] == 2) {
-                            repeatBlock[4] = 0x04; // L1S
+                            repeatBlock[6] = 0x06; // L1S (According to UBX M8 0x04)
                         } else if (constellations[i] == 3) {
-                            repeatBlock[4] = 0x10; // L2C
+                            repeatBlock[6] = 0x10; // L2C
                         }
                     }
                     break;
                 case GNSSConstellations::GLONASS:
                     repeatBlock[0] = 0x06; // gnssId 
-                    repeatBlock[4] = 0x01; // L1
+                    repeatBlock[1] = 0x08; // Min Channels
+                    repeatBlock[2] = 0x0D; // Max Channels
+                    repeatBlock[6] = 0x01; // L1
                     if (constellations.size() > i && constellations[i] > 0  && constellations[i] == 2) {
-                            repeatBlock[4] = 0x10; // L2
+                        repeatBlock[6] = 0x10; // L2
                     }
                     hasMajorGNSS = true;
                     break;
@@ -246,7 +258,6 @@ public:
                     if (messages[i].size() > 2 && static_cast<uint8_t>(messages[i].at(0).toLatin1()) == 0x00 && static_cast<uint8_t>(messages[i].at(1).toLatin1()) == 0x62) {
                         struct ubxMessage message = {};
                         message.classID = static_cast<uint8_t>(messages[i].at(2).toLatin1());
-                        // message.messageID = static_cast<uint8_t>(messages[i].at(3).toLatin1());
 
                         // check if is an ACK/NACK
                         if (messages[i].size() > 3)

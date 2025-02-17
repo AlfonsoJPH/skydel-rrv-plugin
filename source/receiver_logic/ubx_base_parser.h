@@ -25,6 +25,9 @@ public:
         {
             CK_A = CK_A + static_cast<uint8_t>(message[i]);
             CK_B = CK_B + CK_A;
+
+            CK_A = CK_A & 0xFF;
+            CK_B = CK_B & 0xFF;
         }
         return std::make_pair(CK_A, CK_B);
     }
