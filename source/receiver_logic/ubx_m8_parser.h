@@ -170,11 +170,15 @@ public:
         message.classID = UBX_CONFIG;
         message.messageID = UBX_CONFIG_RATE;
         message.length = 6;
+        uint16_t measRate = 1000/rate;
 
-        std::vector<uint8_t> payload(message.length, 0);        
+        std::vector<uint8_t> payload(message.length, 0x00);        
+        
+        payload[0] = measRate & 0xFF;
+        payload[1] = (measRate >> 8) & 0xFF;
+        payload[2] = 0x01;
+        payload[4] = 0x00;
 
-        payload[0] = rate & 0xFF;
-        payload[1] = (rate >> 8) & 0xFF;
         message.payload = payload.data();
 
         std::pair<uint8_t, uint8_t> checksum = generateChecksum(getMessage(message));

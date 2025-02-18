@@ -205,7 +205,7 @@ public slots:
     if(config.updateRateChanged){
       QByteArray message = m_parser->setUpdateRate(config.updateRate);
       QString hexMessage = message.toHex();
-      emit dataReceived("Message: " + hexMessage);
+      emit dataReceived("Message: " + hexMessage + " " + QString::number(config.updateRate));
       pendingConfigACKs[AvailableReceiverConfigs::UPDATE_RATE] = StateMessage::PENDING; // pending
       configMessages.push_back(message);
     }
