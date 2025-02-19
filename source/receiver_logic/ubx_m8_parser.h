@@ -1,6 +1,23 @@
 #pragma once
 
 #include "ubx_base_parser.h"
+#include <QStringList>
+#include <QString>
+
+
+const QStringList platformModels = {
+    "Portable",
+    "",
+    "Stationary",
+    "Pedestrian",
+    "Automotive",
+    "Sea",
+    "Airborne <1G",
+    "Airborne <2G",
+    "Airborne <4G",
+    "Wrist",
+    "Bike"
+};
 
 #define UBX_CONFIG_GNSS 0x3E
 #define UBX_CONFIG_MODEL 0x24
@@ -147,15 +164,51 @@ public:
         
     };
 
-    QByteArray setDynamicPlatformModel(const PlatformModels &model) override{
+    QByteArray setDynamicPlatformModel(const QString &model) override{
         ubxMessage message = {};
         message.classID = UBX_CONFIG;
         message.messageID = UBX_CONFIG_MODEL;
         message.length = 36;
 
-        std::vector<uint8_t> payload(message.length, 0);        
-        payload[1] = 0x01;
-        payload[2] = model;
+        std::vector<uint8_t> payload(message.length, 0);
+        payload[0] = 0xFF;
+        payload[1] = 0xFF;
+        payload[2] = getPlatformModelIndex(model);
+        payload[3] = 0x03; // FixMode
+        payload[4] = 0x00; // FixedAlt
+        payload[5] = 0x00; // FixedAlt
+        payload[6] = 0x00; // FixedAlt
+        payload[7] = 0x00; // FixedAlt
+        payload[8] = 0x10; // fixedAltVar
+        payload[9] = 0x27; // fixedAltVar
+        payload[10] = 0x00; // fixedAltVar
+        payload[11] = 0x00; // fixedAltVar
+        payload[12] = 0x05; // MinElev
+        payload[13] = 0x00; // DrLimit
+        payload[14] = 0xFA; // pDop
+        payload[15] = 0x00; // pDop
+        payload[16] = 0xFA; // tDop
+        payload[17] = 0x00; // tDop
+        payload[18] = 0x64; // pAcc
+        payload[19] = 0x00; // pAcc
+        payload[20] = 0x5E; // tAcc
+        payload[21] = 0x01; // tAcc
+        payload[22] = 0x00; // staticHoldThresh
+        payload[23] = 0x3C; // dgnssTimeout
+        payload[24] = 0x00; // cnoThreshNumSVs
+        payload[25] = 0x00; // cnoThresh
+        payload[26] = 0x00; // reserved1
+        payload[27] = 0x00; // reserved1
+        payload[28] = 0x00; // staticHoldMaxDist
+        payload[29] = 0x00; // staticHoldMaxDist
+        payload[30] = 0x03; // utcStandard
+        payload[31] = 0x00; // reserved2
+        payload[32] = 0x00; // reserved2
+        payload[33] = 0x00; // reserved2
+        payload[34] = 0x00; // reserved2
+        payload[35] = 0x00; // reserved2
+        
+
 
         message.payload = payload.data();
 
@@ -249,14 +302,7 @@ public:
             QStringList messages = response.split("\n");
             for (uint8_t i = 0; i < messages.size(); i++)
             {
-                // remove nmea and empty messages
-                if (messages[i].startsWith("$") || messages[i].isEmpty())
-                {
-                    continue;
-                }
-
-
-                if (!messages[i].startsWith("$"))
+                if (!messages[i].isEmpty() && !messages[i].startsWith("$"))
                 {
                     // Check if it is an ubx message
                     if (messages[i].size() > 2 && static_cast<uint8_t>(messages[i].at(0).toLatin1()) == 0x00 && static_cast<uint8_t>(messages[i].at(1).toLatin1()) == 0x62) {
@@ -286,4 +332,14 @@ public:
         
     };
 
+    QStringList getAvailablePlatformModels() const override{
+        QStringList result = platformModels;
+        result.removeAt(result.indexOf(""));
+        return result;
+    }
+
+    int getPlatformModelIndex(const QString &model) const override{
+        return platformModels.indexOf(model);
+    }
+    
 };

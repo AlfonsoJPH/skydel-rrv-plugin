@@ -148,7 +148,7 @@ public:
         return getMessage(message);
     };
 
-    QByteArray setDynamicPlatformModel(const PlatformModels &model) override{
+    QByteArray setDynamicPlatformModel(const QString &model) override{
         ubxMessage message = {};
         message.classID = UBX_CONFIG;
         message.messageID = UBX_CONFIG_VALSET;

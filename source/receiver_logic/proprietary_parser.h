@@ -55,15 +55,19 @@ enum StateMessage {
 class ProprietaryParser {
 public:
         
-        virtual QByteArray setGNSSConstellations(const std::vector<int> &constellations){};
+      virtual QByteArray setGNSSConstellations(const std::vector<int> &constellations){};
 
-        virtual QByteArray setDynamicPlatformModel(const PlatformModels &model){};
-        
-        virtual QByteArray setUpdateRate(const uint16_t &rate){};
+      virtual QByteArray setDynamicPlatformModel(const QString &model){};
+      
+      virtual QByteArray setUpdateRate(const uint16_t &rate){};
 
-        virtual QByteArray setStartupMode(const StartUpModes &mode){};
+      virtual QByteArray setStartupMode(const StartUpModes &mode){};
 
-        virtual bool checkResponse(const QString &response, QHash<AvailableReceiverConfigs, StateMessage> &pendingConfigACKs){};
+      virtual bool checkResponse(const QString &response, QHash<AvailableReceiverConfigs, StateMessage> &pendingConfigACKs){};
+
+      virtual QStringList getAvailablePlatformModels() const {};
+  
+      virtual int getPlatformModelIndex(const QString &model) const{};
 };  
 
 class receiverConfiguration {
@@ -73,10 +77,17 @@ class receiverConfiguration {
     bool updateRateChanged;
     bool startupModeChanged;
 
+    ProprietaryParser *m_parser;
     std::vector<int> GNSSConstellations;
     QString platformModel;
     uint updateRate;
     StartUpModes startupMode;
+
+    const QStringList AvailableParsers = {
+      "UBX_M8",
+      "UBX_M9",
+      "UBX_M10"
+    };
 
     receiverConfiguration() {
       GNSSConstellationChanged = false;
@@ -85,7 +96,7 @@ class receiverConfiguration {
       startupModeChanged = false;
       GNSSConstellations = std::vector<int>(MAX_NUMBER_OF_CONSTELLATIONS, -1);
       platformModel = PORTABLE;
-      updateRate = -1;
+      updateRate = 1;
       startupMode = COLD;
     }
 

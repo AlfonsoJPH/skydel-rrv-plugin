@@ -1,6 +1,5 @@
 #pragma once
 
-#include <QString>
 #include "./proprietary_parser.h"
 
 #define UBX_CONFIG 0x06
@@ -52,7 +51,8 @@ public:
         return msg;
     }
 
-        QByteArray setGNSSConstellations(const std::vector<int> &constellations) override{}
-        QByteArray setDynamicPlatformModel(const PlatformModels &model) override{}
-        QByteArray setUpdateRate(const uint16_t &rate) override{}
+    QByteArray setGNSSConstellations(const std::vector<int> &constellations) override{}
+    QByteArray setDynamicPlatformModel(const QString &model) override{}
+    QByteArray setUpdateRate(const uint16_t &rate) override{}
+
 };

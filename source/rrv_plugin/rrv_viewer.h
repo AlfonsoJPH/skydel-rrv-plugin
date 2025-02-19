@@ -1,12 +1,15 @@
 #pragma once
 
 #include "../receiver_logic/receiver.h"
-#include "../rrv_plugin/rrv_configuration.h"
 #include "ecef.h"
+#include "../receiver_logic/proprietary_parser.h"
+#include "../receiver_logic/ubx_m8_parser.h"
 #include "rrv_configuration.h"
 #include <QSharedPointer>
 #include <QTextEdit>
 #include <QWidget>
+#include <QStringList>
+
 
 namespace Ui {
 class rrv_viewer;
@@ -76,7 +79,6 @@ public slots:
 
   void receiverConfigReply() 
   {
-    updateDataPanelValue("Respuesta obtenida");
   }
 
 signals:
@@ -116,4 +118,17 @@ private:
   QSharedPointer<RRVConfiguration> pluginConfig;
   QSharedPointer<Sdx::Ecef> receiverPosition, simulationPosition;
   receiverConfiguration receiverConfig;
+
+  // void setParser(const QString &parser) {
+  //   if (parser == "UBX_M8") {
+  //     receiverConfig.m_parser = new UbxM8Parser();
+  //   // } else if (parser == "UBX_M9") {
+  //   //   receiverConfig.m_parser = new UbxM9Parser();
+  //   // } else if (parser == "UBX_M10") {
+  //   //   receiverConfig.m_parser = new UbxM10Parser();
+  //   }
+
+  //   ui->platformModelComboBox->clear();
+  //   ui->platformModelComboBox->addItems(receiverConfig.m_parser->getAvailablePlatformModels());
+  // }
 };

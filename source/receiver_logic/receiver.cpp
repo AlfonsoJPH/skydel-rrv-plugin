@@ -8,7 +8,6 @@ Receiver::Receiver(QObject *parent, QSharedPointer<RRVConfiguration> config)
       fileLog(config->receiverLogPath + QDir::separator() + "rrv.log") {
   state = false;
   this->config = config;
-  setParser(AvailableParsers::UBX_M8);
 }
 
 // Dump logs messages into log file

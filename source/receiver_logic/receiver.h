@@ -9,11 +9,6 @@
 #include <QString>
 #include <QtNetwork/QUdpSocket>
 
-
-enum AvailableParsers {
-  UBX_M8
-};
-
 /**
  * # General Receiver class
  */
@@ -141,19 +136,6 @@ public:
     fileLog.setFileName(config->serialLogPath + QDir::separator() + "rrv.log");
   };
 
-
-
-  void setParser(const AvailableParsers &parser) {
-    switch (parser) {
-    case UBX_M8:
-      m_parser = new UbxM8Parser();
-      break;
-    }
-
-  };
-
-  ProprietaryParser* getParser() { return m_parser; };
-
   virtual int pushConfig(const QByteArray &config) = 0;
 private:
   QFile fileLog;               // File for logging
@@ -189,21 +171,21 @@ public slots:
     bool validConfig[config.size()] = {true};
 
     if(config.GNSSConstellationChanged){
-      QByteArray message = m_parser->setGNSSConstellations(config.GNSSConstellations);
+      QByteArray message = config.m_parser->setGNSSConstellations(config.GNSSConstellations);
       pendingConfigACKs[AvailableReceiverConfigs::GNSS_CONSTELLATIONS] = StateMessage::PENDING; // pending
       configMessages.push_back(message);
     }
-    // if(config.platformModelChanged){
-    //   QByteArray message = m_parser->setDynamicPlatformModel(config.platformModel);
-    //   QString hexMessage = message.toHex();
-    //   emit dataReceived("Message: " + hexMessage);
-    //   pendingConfigACKs[AvailableReceiverConfigs::PLATFORM_MODEL] = StateMessage::PENDING; // pending
-    //   configMessages.push_back(message);
-    //   config.platformModelChanged = false;
-    // }
+    if(config.platformModelChanged){
+      QByteArray message = config.m_parser->setDynamicPlatformModel(config.platformModel);
+      QString hexMessage = message.toHex();
+      emit dataReceived("Message: " + hexMessage);
+      pendingConfigACKs[AvailableReceiverConfigs::PLATFORM_MODEL] = StateMessage::PENDING; // pending
+      configMessages.push_back(message);
+      config.platformModelChanged = false;
+    }
 
     if(config.updateRateChanged){
-      QByteArray message = m_parser->setUpdateRate(config.updateRate);
+      QByteArray message = config.m_parser->setUpdateRate(config.updateRate);
       QString hexMessage = message.toHex();
       emit dataReceived("Message: " + hexMessage + " " + QString::number(config.updateRate));
       pendingConfigACKs[AvailableReceiverConfigs::UPDATE_RATE] = StateMessage::PENDING; // pending
@@ -211,7 +193,7 @@ public slots:
     }
 
     if(config.startupModeChanged){
-      QByteArray message = m_parser->setStartupMode(config.startupMode);
+      QByteArray message = config.m_parser->setStartupMode(config.startupMode);
       QString hexMessage = message.toHex();
       emit dataReceived("Message: " + hexMessage);
       pendingConfigACKs[AvailableReceiverConfigs::STARTUP_MODE] = StateMessage::PENDING; // pending
